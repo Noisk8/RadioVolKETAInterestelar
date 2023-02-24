@@ -1,0 +1,45 @@
+---
+import { NAV_ITEMS, SOCIAL_MEDIA_ITEMS } from 'src/config';
+
+const { url } = Astro;
+const { pathname } = url;
+---
+
+<nav id="nav">
+  <ul class="links">
+    {
+      NAV_ITEMS.map((item) => {
+        return (
+          <li class={pathname === item.path ? 'active' : ''}>
+            <a href={item.path}>{item.title}</a>
+          </li>
+        );
+      })
+    }
+  </ul>
+  <ul class="icons">
+    {
+      SOCIAL_MEDIA_ITEMS.map((item) => {
+        return (
+          <li>
+            <a href={item.path} class={`icon brands ${item.iconClass}"`}>
+              <span class="label">{item.title}</span>
+            </a>
+          </li>
+        );
+      })
+    }
+    <li>
+      <a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a>
+    </li>
+    <li>
+      <a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a>
+    </li>
+    <li>
+      <a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a>
+    </li>
+    <li>
+      <a href="#" class="icon brands fa-github"><span class="label">GitHub</span></a>
+    </li>
+  </ul>
+</nav>
