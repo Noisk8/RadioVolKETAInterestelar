@@ -1,16 +1,13 @@
 export const NAV_ITEMS = [
   {
     path: '/',
-    title: 'This is Massively',
+    title: 'Podcasts',
   },
   {
     path: '/generic',
-    title: 'Generic Page',
+    title: 'radio en vivo',
   },
-  {
-    path: '/elements',
-    title: 'Elements Reference',
-  },
+
 ];
 
 export const SOCIAL_MEDIA_ITEMS = [
@@ -37,7 +34,7 @@ export const SOCIAL_MEDIA_ITEMS = [
 ];
 
 export const SITE = {
-  title: 'Massively for Astro',
+  title: 'R V I',
   description: 'A free, fully responsive HTML5 + CSS3 site template, ported to Astro',
   url: 'https://astro-massively.darko.io',
   githubUrl: 'https://github.com/DBozhinovski/astro-massively',
