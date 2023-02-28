@@ -1,27 +1,32 @@
 {
-  "name": "astro-massiely",
-  "version": "1.0.0",
-  "private": false,
+  "name": "blogster-bubblegum",
+  "version": "0.0.1",
+  "private": true,
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@astrojs/mdx": "^0.11.1",
-    "@astrojs/rss": "^1.0.1",
+    "@astrojs/prism": "^1.0.2",
+    "@astrojs/rss": "^2.0.0",
     "@astrojs/sitemap": "^1.0.0",
-    "@astrojs/tailwind": "^3.0.1",
-    "astro": "^2.0.15",
-    "astro-google-fonts-optimizer": "^0.2.1",
-    "date-fns": "^2.29.2",
-    "tailwindcss": "^3.2.7"
+    "@astrojs/tailwind": "^2.1.3",
+    "@markdoc/markdoc": "^0.2.1",
+    "@tailwindcss/typography": "^0.5.9",
+    "astro": "^1.9.2",
+    "astro-markdoc-renderer": "0.0.1-alpha.1",
+    "globby": "^13.1.3",
+    "gray-matter": "^4.0.3",
+    "slugify": "^1.6.5",
+    "tailwindcss": "^3.2.4",
+    "zod": "^3.20.2"
   },
   "devDependencies": {
-    "prettier-plugin-astro": "^0.5.4",
-    "rollup": ">=2",
-    "sass": "^1.54.9"
+    "prettier-plugin-astro": "^0.7.2",
+    "typescript": "^4.9.4"
   }
 }

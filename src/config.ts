@@ -1,48 +1,12 @@
-export const NAV_ITEMS = [
-  {
-    path: '/',
-    title: 'Podcasts',
-  },
-  {
-    path: '/generic',
-    title: 'radio en vivo',
-  },
+// Place any global data in this file.
+// You can import this data from anywhere in your site by using the `import` keyword.
 
-];
+export const SITE_TITLE = "Captain Awesome";
+export const SITE_DESCRIPTION =
+  "Welcome to my blog! I write about modern web development.";
+export const TWITTER_HANDLE = "@yourtwitterhandle";
+export const MY_NAME = "Captain Awesome";
 
-export const SOCIAL_MEDIA_ITEMS = [
-  {
-    path: '#',
-    title: 'Twitter',
-    iconClass: 'fa-twitter',
-  },
-  {
-    path: '#',
-    title: 'Facebook',
-    iconClass: 'fa-facebook-f',
-  },
-  {
-    path: '#',
-    title: 'Instagram',
-    iconClass: 'fa-instagram',
-  },
-  {
-    path: '#',
-    title: 'GitHub',
-    iconClass: 'fa-github',
-  },
-];
-
-export const SITE = {
-  title: 'R V I',
-  description: 'A free, fully responsive HTML5 + CSS3 site template, ported to Astro',
-  url: 'https://astro-massively.darko.io',
-  githubUrl: 'https://github.com/DBozhinovski/astro-massively',
-};
-
-export const CONTACT = {
-  address: ['1234 Somewhere Road #87257 Nashville', 'TN 00000-0000'],
-  phone: '(000) 000-0000',
-  email: 'info@untitled.tld',
-  formSubmitUrl: '/',
-};
+// setup in astro.config.mjs
+const BASE_URL = new URL(import.meta.env.SITE);
+export const SITE_URL = BASE_URL.origin;
