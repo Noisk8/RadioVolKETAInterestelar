@@ -1,7 +1,11 @@
 /* eslint-disable turbo/no-undeclared-env-vars */
-import { defineConfig } from "astro/config";
+
 import sitemap from "@astrojs/sitemap";
 import tailwind from "@astrojs/tailwind";
+import { defineConfig } from 'astro/config';
+
+import { createProxyMiddleware } from 'http-proxy-middleware';
+
 
 /* 
   We are doing some URL mumbo jumbo here to tell Astro what the URL of your website will be.
@@ -29,6 +33,13 @@ if (isBuild) {
 
 export default defineConfig({
   server: { port: SERVER_PORT },
+  proxy: {
+    '/api': {
+      target: 'https://dev.p-node.org',
+      changeOrigin: true,
+      rewrite: (path) => path.replace(/^\/api/, ''),
+    },
+  },
   site: BASE_URL,
   integrations: [
     sitemap(),
