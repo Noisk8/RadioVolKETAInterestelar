@@ -15,6 +15,7 @@ import ThemeScript from "./ThemeScript.astro";
 import Favicon from "./Favicon.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import Analytics from '@vercel/analytics/astro'
 ---
 
 <!DOCTYPE html>
@@ -29,6 +30,7 @@ import Footer from "../components/Footer.astro";
     <GoogleFont />
     <ThemeScript />
     <FontAwesome />
+    <Analytics />
   </head>
 
   <body
