@@ -1,0 +1,43 @@
+---
+import EpisodioCard from './EpisodioCard.astro';
+
+// Aquí puedes definir tus episodios, ya sea importándolos de un CMS o definiéndolos directamente
+const episodios = [
+  {
+    titulo: "Episodio 1: Introducción",
+    descripcion: "En este episodio hablamos sobre...",
+    audioUrl: "https://stream.p-node.org/contretemps.mp3",
+    imagenUrl: "/155777732.png"
+  },
+  {
+    titulo: "Episodio 2: Continuación",
+    descripcion: "Seguimos con el tema...",
+    audioUrl: "https://stream.p-node.org/contretemps.mp3",
+    imagenUrl: "/155777732.png"
+  }
+];
+---
+
+<section class="lista-episodios">
+  {
+    episodios.map((episodio) => (
+      <EpisodioCard
+        titulo={episodio.titulo}
+        descripcion={episodio.descripcion}
+        audioUrl={episodio.audioUrl}
+        imagenUrl={episodio.imagenUrl}
+      />
+    ))
+  }
+</section>
+
+<style>
+  .lista-episodios {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+</style> 

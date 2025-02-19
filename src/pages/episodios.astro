@@ -1,0 +1,16 @@
+---
+import PageLayout from "../layouts/PageLayout.astro";
+import ListaEpisodios from '../components/ListaEpisodios.astro';
+import { SITE_TITLE } from "../config";
+import PageMeta from "../components/PageMeta.astro";
+---
+
+<PageLayout title="Episodios del Podcast">
+    <PageMeta title={`${SITE_TITLE} | Web Ninja`} slot="meta" />
+    <Fragment slot="main">
+  <main>
+    <h1>Nuestros Episodios</h1>
+    <ListaEpisodios />
+  </main>
+</Fragment>
+</PageLayout> 
