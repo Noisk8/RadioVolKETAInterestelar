@@ -1,13 +1,22 @@
 ---
+interface Cancion {
+  titulo: string;
+  audioUrl: string;
+}
+
 interface Props {
   titulo: string;
   descripcion: string;
   audioUrl: string;
   imagenUrl: string;
+  canciones: Cancion[];
 }
 
-const { titulo, descripcion, audioUrl, imagenUrl } = Astro.props;
+const { titulo, descripcion, audioUrl, imagenUrl, canciones } = Astro.props;
 ---
+
+<!-- Actualizar la importación de la fuente para incluir los pesos que necesitamos -->
+<link href="https://fonts.googleapis.com/css2?family=Londrina+Solid:wght@100;300;900&display=swap" rel="stylesheet">
 
 <article class="episodio-card">
   <div class="imagen-container">
@@ -20,6 +29,26 @@ const { titulo, descripcion, audioUrl, imagenUrl } = Astro.props;
       <source src={audioUrl} type="audio/mpeg">
       Tu navegador no soporta el elemento de audio.
     </audio>
+    
+    <div class="playlist-container">
+      <button class="toggle-playlist" aria-expanded="false">
+        <span>Ver lista de canciones</span>
+        <svg class="icon" width="20" height="20" viewBox="0 0 24 24">
+          <path d="M7 10l5 5 5-5H7z" fill="currentColor"/>
+        </svg>
+      </button>
+      
+      <div class="playlist" hidden>
+        <ul class="canciones-lista">
+          {canciones.map((cancion: Cancion, index: number) => (
+            <li class="cancion-item">
+              <span class="numero">{index + 1}</span>
+              <span class="cancion-titulo">{cancion.titulo}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
   </div>
 </article>
 
@@ -56,17 +85,134 @@ const { titulo, descripcion, audioUrl, imagenUrl } = Astro.props;
   h3 {
     margin: 0 0 1rem 0;
     color: #333;
-    font-size: 1.5rem;
+    font-size: 2.2rem;
+    font-family: 'Londrina Solid', cursive;
+    font-weight: 900;  /* Bold para el título principal */
+    letter-spacing: 0.5px;
   }
 
   p {
     color: #666;
     margin-bottom: 1rem;
     line-height: 1.6;
+    font-family: 'Londrina Solid', cursive;
+    font-weight: 300;  /* Light para la descripción */
+    font-size: 1.1rem;
   }
 
   audio {
     width: 100%;
     margin-top: 1rem;
   }
-</style> 
+
+  .playlist-container {
+    margin-top: 2rem;
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+  }
+
+  .toggle-playlist {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: #f5f5f5;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #333;
+    transition: background-color 0.2s;
+    font-family: 'Londrina Solid', cursive;
+    font-weight: 300;  /* Light para el botón */
+  }
+
+  .toggle-playlist:hover {
+    background: #ebebeb;
+  }
+
+  .toggle-playlist .icon {
+    transition: transform 0.3s ease;
+  }
+
+  .toggle-playlist[aria-expanded="true"] .icon {
+    transform: rotate(180deg);
+  }
+
+  .playlist {
+    margin-top: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .playlist[hidden] {
+    display: none;
+  }
+
+  h4 {
+    color: #333;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    font-family: var(--font-londrina);
+    font-weight: 400;
+  }
+
+  .canciones-lista {
+    list-style: none;
+    padding: 0;
+  }
+
+  .cancion-item {
+    display: grid;
+    grid-template-columns: 30px 1fr;
+    align-items: center;
+    padding: 0.8rem;
+    border-bottom: 1px solid #eee;
+    gap: 1rem;
+  }
+
+  .cancion-item:hover {
+    background-color: #f5f5f5;
+  }
+
+  .numero {
+    color: #666;
+    font-family: 'Londrina Solid', cursive;
+    font-weight: 300;
+    text-align: center;
+  }
+
+  .cancion-titulo {
+    color: #333;
+    font-family: 'Londrina Solid', cursive;
+    font-weight: 300;
+    font-size: 1.1rem;
+  }
+</style>
+
+<script>
+  document.querySelectorAll('.toggle-playlist').forEach((button: Element) => {
+    if (button instanceof HTMLButtonElement) {
+      button.addEventListener('click', () => {
+        const isExpanded = button.getAttribute('aria-expanded') === 'true';
+        const playlist = button.nextElementSibling;
+        const buttonText = button.querySelector('span');
+        
+        // Convertir el booleano a string para setAttribute
+        button.setAttribute('aria-expanded', String(!isExpanded));
+        
+        // Verificar que playlist existe y es un HTMLElement
+        if (playlist instanceof HTMLElement) {
+          playlist.hidden = isExpanded;
+        }
+        
+        // Verificar que buttonText existe y es un HTMLElement
+        if (buttonText instanceof HTMLElement) {
+          buttonText.textContent = isExpanded 
+            ? 'Ver lista de canciones' 
+            : 'Ocultar lista de canciones';
+        }
+      });
+    }
+  });
+</script> 

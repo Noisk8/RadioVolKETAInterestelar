@@ -4,17 +4,111 @@ import EpisodioCard from './EpisodioCard.astro';
 // Aquí puedes definir tus episodios, ya sea importándolos de un CMS o definiéndolos directamente
 const episodios = [
   {
-    titulo: "Episodio 1: Introducción",
+    titulo: "Episodio 1",
     descripcion: "En este episodio hablamos sobre...",
     audioUrl: "https://stream.p-node.org/contretemps.mp3",
-    imagenUrl: "/155777732.png"
+    imagenUrl: "/images/1.png",
+    canciones: [
+      {
+        titulo: "Take me home - M. Aller",
+        audioUrl: "https://stream.p-node.org/contretemps.mp3"
+      },
+      {
+        titulo: "Masive sound - The Poem",
+        audioUrl: "https://stream.p-node.org/contretemps.mp3"
+      },
+      {
+        titulo: "Underworld - born slip (Almamater edit)",
+        audioUrl: "https://stream.p-node.org/contretemps.mp3"
+      },
+      {
+        titulo: "Bajo Fondo - Club Tango",
+        audioUrl: "https://stream.p-node.org/contretemps.mp3"
+      }, 
+      {
+        titulo: "The blaze - Virile",
+        audioUrl: "https://stream.p-node.org/contretemps.mp3"
+      },
+      {
+        titulo: "Enigma - Way to eternity",
+        audioUrl: "https://stream.p-node.org/contretemps.mp3"
+      },
+      {
+        titulo: "The blaze - Virile",
+        audioUrl: "https://stream.p-node.org/contretemps.mp3"
+      },
+      {
+        titulo: "Enigma - Way to eternity",
+        audioUrl: "https://stream.p-node.org/contretemps.mp3"
+      },
+      {
+        titulo: "The blaze - Virile",
+        audioUrl: "https://stream.p-node.org/contretemps.mp3"
+      },
+      {
+        titulo: "Enigma - Way to eternity",
+        audioUrl: "https://stream.p-node.org/contretemps.mp3"
+      },
+      {
+        titulo: "The blaze - Virile",
+        audioUrl: "https://stream.p-node.org/contretemps.mp3"
+      },
+      {
+        titulo: "Enigma - Way to eternity",
+        audioUrl: "https://stream.p-node.org/contretemps.mp3"
+      },
+      {
+        titulo: "Limite Malade · Automelodi",
+        audioUrl: "https://stream.p-node.org/contretemps.mp3"
+      },
+      {
+        titulo: "Pet shop boys - West End Girls",
+        audioUrl: "https://stream.p-node.org/contretemps.mp3"
+      },
+      {
+        titulo: "Tom Ellis - Co-Create (Original Mix)",
+        audioUrl: "https://stream.p-node.org/contretemps.mp3"
+      },
+      {
+        titulo: "Nore en pure - lonliless",
+        audioUrl: "https://stream.p-node.org/contretemps.mp3"
+      },
+   {
+        titulo: "Miss Kittin & The Hacker - The Beach (Bonus Track)",
+        audioUrl: "https://stream.p-node.org/contretemps.mp3"
+      },
+      {
+        titulo: "Omar S - Another Man",
+        audioUrl: "https://stream.p-node.org/contretemps.mp3"
+      },
+      {
+        titulo: "Nitin - The Nine In One (Subb an Remix)",
+        audioUrl: "https://stream.p-node.org/contretemps.mp3"
+      },
+      {
+        titulo: "Leonel, El Feo [Romina Cohn & Carlos Shaw Remix]",
+        audioUrl: "https://stream.p-node.org/contretemps.mp3"
+   }
+  
+      
+    ]
   },
-  {
-    titulo: "Episodio 2: Continuación",
-    descripcion: "Seguimos con el tema...",
-    audioUrl: "https://stream.p-node.org/contretemps.mp3",
-    imagenUrl: "/155777732.png"
-  }
+  // {
+  //   titulo: "Episodio 2: Continuación",
+  //   descripcion: "Seguimos con el tema...",
+  //   audioUrl: "https://stream.p-node.org/contretemps.mp3",
+  //   imagenUrl: "/images/1.png",
+  //   canciones: [
+  //     {
+  //       titulo: "Repaso del episodio anterior",
+  //       audioUrl: "https://stream.p-node.org/contretemps.mp3"
+  //     },
+  //     {
+  //       titulo: "Nuevos conceptos",
+  //       audioUrl: "https://stream.p-node.org/contretemps.mp3"
+  //     }
+  //   ]
+  // }
 ];
 ---
 
@@ -26,6 +120,7 @@ const episodios = [
         descripcion={episodio.descripcion}
         audioUrl={episodio.audioUrl}
         imagenUrl={episodio.imagenUrl}
+        canciones={episodio.canciones}
       />
     ))
   }
