@@ -1,52 +1,23 @@
 ---
 ---
 
-<footer class="text-sm leading-[1.75] mt-4">
-  <div>
-    Radio Volketa Interestelar
-    <a
-      class="unset gradient-link tracking-wider font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#f57111] to-[#f79605] hover:after:bg-gradient-to-r hover:after:from-[#f57111] hover:after:to-[#f79605]"
-      href={"https://github.com/flexdinesh/blogster"}
-      target="_blank"
-    >
-      2023</a> 
-    <a
-      class="unset gradient-link tracking-wider font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#00abda] to-[#1476ff] hover:after:bg-gradient-to-r hover:after:from-[#00abda] hover:after:to-[#1476ff]"
-      href={"https://www.netlify.com"}
-      target="_blank"
-    >
-      </a>
-  </div>
+<footer class="text-center p-4 font-londrina">
+  <p class="text-sm text-gray-600 dark:text-gray-400">
+     Radio Volketa Interestelar -  <span id="currentYear"></span>
+  </p>
 </footer>
 
+<script>
+  const yearElement = document.getElementById('currentYear');
+  if (yearElement) {
+    yearElement.textContent = new Date().getFullYear().toString();
+  }
+</script>
+
 <style>
-  footer {
-    grid-area: footer;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .gradient-link {
-    position: relative;
-    box-decoration-break: clone;
-    text-decoration: none;
-  }
-
-  .gradient-link:hover:after {
-    transform: translateZ(0) scale(1);
-  }
-
-  .gradient-link:after {
-    left: 0;
-    right: 0;
-    bottom: -2px;
-    content: "";
-    height: 2px;
-    position: absolute;
-    transform: translateZ(0) scaleX(0);
-    transform-origin: left center;
-    transition: all 0.15s ease-in-out;
+  @import url('https://fonts.googleapis.com/css2?family=Londrina+Solid&display=swap');
+  
+  .font-londrina {
+    font-family: 'Londrina Solid', cursive;
   }
 </style>
