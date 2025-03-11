@@ -24,7 +24,7 @@ const { titulo, descripcion, audioUrl, imagenUrl, canciones } = Astro.props;
   </div>
   <div class="contenido">
     <h3>{titulo}</h3>
-    <p>{descripcion}</p>
+    <p class="font-family: var(--font-londrina); text-base">{descripcion}</p>
     <audio controls>
       <source src={audioUrl} type="audio/mpeg">
       Tu navegador no soporta el elemento de audio.
@@ -38,7 +38,7 @@ const { titulo, descripcion, audioUrl, imagenUrl, canciones } = Astro.props;
         </svg>
       </button>
       
-      <div class="playlist" hidden>
+      <div class="playlist">
         <ul class="canciones-lista">
           {canciones.map((cancion: Cancion, index: number) => (
             <li class="cancion-item">
@@ -60,6 +60,11 @@ const { titulo, descripcion, audioUrl, imagenUrl, canciones } = Astro.props;
     overflow: hidden;
     margin: 1rem;
     transition: transform 0.2s;
+    max-width: 1000px;
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
   }
 
   .episodio-card:hover {
@@ -79,7 +84,11 @@ const { titulo, descripcion, audioUrl, imagenUrl, canciones } = Astro.props;
   }
 
   .contenido {
-    padding: 1.5rem;
+    padding: 2rem;
+    max-width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
 
   h3 {
@@ -87,17 +96,18 @@ const { titulo, descripcion, audioUrl, imagenUrl, canciones } = Astro.props;
     color: #333;
     font-size: 2.2rem;
     font-family: 'Londrina Solid', cursive;
-    font-weight: 900;  /* Bold para el título principal */
+    font-weight: 900;  
     letter-spacing: 0.5px;
   }
 
   p {
     color: #666;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     line-height: 1.6;
     font-family: 'Londrina Solid', cursive;
-    font-weight: 300;  /* Light para la descripción */
-    font-size: 1.1rem;
+    font-weight: 300;  
+    font-size: 1.2rem;
+    max-width: 100%;
   }
 
   audio {
@@ -109,6 +119,7 @@ const { titulo, descripcion, audioUrl, imagenUrl, canciones } = Astro.props;
     margin-top: 2rem;
     border-top: 1px solid #eee;
     padding-top: 1rem;
+    position: relative;
   }
 
   .toggle-playlist {
@@ -125,7 +136,7 @@ const { titulo, descripcion, audioUrl, imagenUrl, canciones } = Astro.props;
     color: #333;
     transition: background-color 0.2s;
     font-family: 'Londrina Solid', cursive;
-    font-weight: 300;  /* Light para el botón */
+    font-weight: 300;  
   }
 
   .toggle-playlist:hover {
@@ -142,11 +153,13 @@ const { titulo, descripcion, audioUrl, imagenUrl, canciones } = Astro.props;
 
   .playlist {
     margin-top: 1rem;
-    transition: all 0.3s ease;
-  }
-
-  .playlist[hidden] {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: none;
+    z-index: 10;
+    width: 100%;
   }
 
   h4 {
@@ -191,28 +204,47 @@ const { titulo, descripcion, audioUrl, imagenUrl, canciones } = Astro.props;
 </style>
 
 <script>
-  document.querySelectorAll('.toggle-playlist').forEach((button: Element) => {
-    if (button instanceof HTMLButtonElement) {
-      button.addEventListener('click', () => {
-        const isExpanded = button.getAttribute('aria-expanded') === 'true';
-        const playlist = button.nextElementSibling;
-        const buttonText = button.querySelector('span');
-        
-        // Convertir el booleano a string para setAttribute
-        button.setAttribute('aria-expanded', String(!isExpanded));
-        
-        // Verificar que playlist existe y es un HTMLElement
-        if (playlist instanceof HTMLElement) {
-          playlist.hidden = isExpanded;
+  // Implementación mejorada con comprobaciones de tipo
+  document.addEventListener('DOMContentLoaded', () => {
+    // Seleccionar todos los botones de toggle
+    const toggleButtons = document.querySelectorAll('.toggle-playlist');
+    
+    toggleButtons.forEach((button) => {
+      if (button instanceof HTMLElement) {
+        // Encontrar la playlist asociada a este botón
+        const playlistContainer = button.closest('.playlist-container');
+        if (playlistContainer) {
+          const playlist = playlistContainer.querySelector('.playlist');
+          
+          // Ocultar todas las playlists inicialmente (con verificación de tipo)
+          if (playlist instanceof HTMLElement) {
+            playlist.style.display = 'none';
+            
+            // Añadir evento de clic al botón
+            button.addEventListener('click', () => {
+              // Comprobar si está expandido o colapsado
+              const isExpanded = button.getAttribute('aria-expanded') === 'true';
+              
+              // Alternar visibilidad
+              if (isExpanded) {
+                playlist.style.display = 'none';
+                button.setAttribute('aria-expanded', 'false');
+                const buttonText = button.querySelector('span');
+                if (buttonText) {
+                  buttonText.textContent = 'Ver lista de canciones';
+                }
+              } else {
+                playlist.style.display = 'block';
+                button.setAttribute('aria-expanded', 'true');
+                const buttonText = button.querySelector('span');
+                if (buttonText) {
+                  buttonText.textContent = 'Ocultar lista de canciones';
+                }
+              }
+            });
+          }
         }
-        
-        // Verificar que buttonText existe y es un HTMLElement
-        if (buttonText instanceof HTMLElement) {
-          buttonText.textContent = isExpanded 
-            ? 'Ver lista de canciones' 
-            : 'Ocultar lista de canciones';
-        }
-      });
-    }
+      }
+    });
   });
-</script> 
+</script>
