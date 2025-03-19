@@ -17,6 +17,14 @@ const sortedEpisodes = episodes
       new Date(b.frontmatter.date).valueOf() -
       new Date(a.frontmatter.date).valueOf()
   );
+
+function formatDate(date: string | Date): string {
+  return new Date(date).toLocaleDateString("es-ES", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
 ---
 
 <PageLayout title="Episodios del Podcast">
@@ -26,15 +34,11 @@ const sortedEpisodes = episodes
       <h1>Episodios Nouns Amigos x Radio Volketa Interestelar ⌐◨-◨ </h1>
       <div class="episodios-grid">
         {sortedEpisodes.map((episode) => {
-          const formattedDate = new Date(episode.frontmatter.date).toLocaleDateString("es-ES", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          });
+          const formattedDate = formatDate(episode.frontmatter.date);
           
           return (
             <article class="episodio-card">
-              <a href={`/episodios/${episode.slug}`} class="card-link">
+              <a href={`/nouns-episodios/${episode.slug}`} class="card-link">
                 <div class="imagen-container">
                   <img src={episode.frontmatter.imageUrl} alt={episode.frontmatter.title} />
                 </div>
