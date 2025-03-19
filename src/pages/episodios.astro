@@ -1,18 +1,56 @@
 ---
 import PageLayout from "../layouts/PageLayout.astro";
-import ListaEpisodios from '../components/ListaEpisodios.astro';
 import { SITE_TITLE } from "../config";
 import PageMeta from "../components/PageMeta.astro";
+import { readAll } from "../lib/markdoc/read";
+import { episodio } from "../lib/markdoc/episodios.schema";
+
+const episodes = await readAll({
+  directory: "episodios",
+  frontmatterSchema: episodio,
+});
+
+const sortedEpisodes = episodes
+  .filter((p) => p.frontmatter.draft !== true)
+  .sort(
+    (a, b) =>
+      new Date(b.frontmatter.date).valueOf() -
+      new Date(a.frontmatter.date).valueOf()
+  );
 ---
 
 <PageLayout title="Episodios del Podcast">
-    <PageMeta title={`${SITE_TITLE} | ⌐◨-◨ Episodios Nouns-Amigo X  Volketa Interestelar`} slot="meta" />
-    <Fragment slot="main">
-  <main>
-    <h1>Episodios Nouns Amigos x Radio Volketa Interestelar ⌐◨-◨ </h1>
-    <ListaEpisodios />
-  </main>
-</Fragment>
+  <PageMeta title={`${SITE_TITLE} | ⌐◨-◨ Episodios Nouns-Amigo X  Volketa Interestelar`} slot="meta" />
+  <Fragment slot="main">
+    <main>
+      <h1>Episodios Nouns Amigos x Radio Volketa Interestelar ⌐◨-◨ </h1>
+      <div class="episodios-grid">
+        {sortedEpisodes.map((episode) => {
+          const formattedDate = new Date(episode.frontmatter.date).toLocaleDateString("es-ES", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          });
+          
+          return (
+            <article class="episodio-card">
+              <a href={`/episodios/${episode.slug}`} class="card-link">
+                <div class="imagen-container">
+                  <img src={episode.frontmatter.imageUrl} alt={episode.frontmatter.title} />
+                </div>
+                <div class="contenido">
+                  <h2>{episode.frontmatter.title}</h2>
+                  <time datetime={episode.frontmatter.date.toISOString()}>{formattedDate}</time>
+                  <p class="descripcion">{episode.frontmatter.description}</p>
+                  <span class="ver-mas">Ver episodio completo →</span>
+                </div>
+              </a>
+            </article>
+          );
+        })}
+      </div>
+    </main>
+  </Fragment>
 </PageLayout>
 
 <style>
@@ -25,4 +63,89 @@ import PageMeta from "../components/PageMeta.astro";
     margin-bottom: 2rem;
     letter-spacing: 0.5px;
   }
-</style> 
+
+  .episodios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .episodio-card {
+    background: var(--background-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid var(--border-color);
+  }
+
+  .episodio-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
+  .imagen-container {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+  }
+
+  .imagen-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .contenido {
+    padding: 1.5rem;
+  }
+
+  h2 {
+    font-family: 'Londrina Solid', cursive;
+    font-size: 1.8rem;
+    color: var(--text-color);
+    margin: 0 0 0.5rem 0;
+  }
+
+  time {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .descripcion {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: var(--text-color);
+  }
+
+  .ver-mas {
+    display: inline-block;
+    color: #ee4a4a;
+    font-weight: 600;
+    transition: transform 0.2s;
+  }
+
+  .ver-mas:hover {
+    transform: translateX(5px);
+  }
+
+  :global(.dark) .episodio-card {
+    background: var(--code-inline-bg);
+  }
+</style>
