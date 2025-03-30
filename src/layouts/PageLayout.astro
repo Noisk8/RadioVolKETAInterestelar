@@ -16,6 +16,20 @@ import Favicon from "./Favicon.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import Analytics from '@vercel/analytics/astro'
+
+// Props para título y descripción
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { 
+  title = "Radio VolKETA Interestelar",
+  description = "Radio VolKETA Interestelar - Nouns Episodios"
+} = Astro.props;
+
+// URL canónica para las metaetiquetas
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://radiovolketainterestelar.com');
 ---
 
 <!DOCTYPE html>
@@ -31,6 +45,20 @@ import Analytics from '@vercel/analytics/astro'
     <ThemeScript />
     <FontAwesome />
     <Analytics />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={new URL('/rvi.png', Astro.site || 'https://radiovolketainterestelar.com')} />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={new URL('/rvi.png', Astro.site || 'https://radiovolketainterestelar.com')} />
   </head>
 
   <body
