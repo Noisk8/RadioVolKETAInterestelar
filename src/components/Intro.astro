@@ -1,13 +1,19 @@
 ---
 // Variable para título inicial
-let tituloInicial = "Conectando con la transmisión...";
+let tituloInicial = "Radio Volketa Interestelar";
 
 // Intentar obtener datos iniciales
 try {
-  const respuesta = await fetch('http://82.25.92.57:5000/status.json');
+  const respuesta = await fetch('http://82.25.92.57:8001/status-json.xsl');
   const data = await respuesta.json();
-  if (data.cancion_actual) {
-    tituloInicial = `${data.cancion_actual.titulo} - ${data.cancion_actual.artista}`;
+  if (data && data.icestats && data.icestats.source) {
+    const source = Array.isArray(data.icestats.source) 
+      ? data.icestats.source[0] 
+      : data.icestats.source;
+
+    if (source.title) {
+      tituloInicial = source.title;
+    }
   }
 } catch (error) {
   console.error("Error al obtener datos de la API:", error);
@@ -39,7 +45,7 @@ try {
       <h2 class="text-xl font-semibold text-white mb-2">Reproduciendo ahora:</h2>
       <div class="song-info-container p-3 rounded-lg">
         <p class="text-gray-300 text-lg font-medium transition-all duration-300" id="song-title">{tituloInicial}</p>
-        <p class="text-gray-400 text-sm mt-1 transition-all duration-300" id="artist-name"></p>
+        <p class="text-gray-400 text-sm mt-1 transition-all duration-300" id="artist-name">Transmitiendo en vivo</p>
       </div>
     </div>
   </div>
@@ -59,26 +65,32 @@ try {
     async function actualizarCancion() {
       try {
         console.log('Intentando obtener datos de canción...');
-        const response = await fetch('http://82.25.92.57:5000/status.json');
+        const response = await fetch('http://82.25.92.57:8001/status-json.xsl');
         const data = await response.json();
         
         // Actualizar solo si hay cambios
-        if (data.cancion_actual) {
-          const songTitleElement = document.getElementById('song-title');
-          const artistNameElement = document.getElementById('artist-name');
-          
-          if (songTitleElement && data.cancion_actual.titulo !== tituloActual) {
-            songTitleElement.textContent = data.cancion_actual.titulo;
-            songTitleElement.classList.add('text-highlight');
-            setTimeout(() => songTitleElement.classList.remove('text-highlight'), 1000);
-            tituloActual = data.cancion_actual.titulo;
-          }
-          
-          if (artistNameElement && data.cancion_actual.artista !== artistaActual) {
-            artistNameElement.textContent = data.cancion_actual.artista;
-            artistNameElement.classList.add('text-highlight');
-            setTimeout(() => artistNameElement.classList.remove('text-highlight'), 1000);
-            artistaActual = data.cancion_actual.artista;
+        if (data && data.icestats && data.icestats.source) {
+          const source = Array.isArray(data.icestats.source) 
+            ? data.icestats.source[0] 
+            : data.icestats.source;
+
+          if (source.title || source.artist) {
+            const songTitleElement = document.getElementById('song-title');
+            const artistNameElement = document.getElementById('artist-name');
+            
+            if (songTitleElement && source.title !== tituloActual) {
+              songTitleElement.textContent = source.title || "Radio Volketa Interestelar";
+              songTitleElement.classList.add('text-highlight');
+              setTimeout(() => songTitleElement.classList.remove('text-highlight'), 1000);
+              tituloActual = source.title;
+            }
+            
+            if (artistNameElement && source.artist !== artistaActual) {
+              artistNameElement.textContent = source.artist || "Transmitiendo en vivo";
+              artistNameElement.classList.add('text-highlight');
+              setTimeout(() => artistNameElement.classList.remove('text-highlight'), 1000);
+              artistaActual = source.artist;
+            }
           }
         }
         
@@ -91,8 +103,8 @@ try {
     // Actualizar inmediatamente al cargar
     actualizarCancion();
     
-    // Actualizar cada 10 segundos para no sobrecargar el servidor
-    setInterval(actualizarCancion, 10000);
+    // Actualizar cada 15 segundos para no sobrecargar el servidor
+    setInterval(actualizarCancion, 15000);
 
     // También actualizar cuando el reproductor comienza a reproducir
     const player = document.getElementById('radio-player');
