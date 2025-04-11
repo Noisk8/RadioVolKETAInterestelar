@@ -1,16 +1,10 @@
 ---
-interface Props {
-  title: string;
-  description?: string;
-}
-
 const { 
   title,
   description = 'Radio VolKETA Interestelar - Nouns Episodios'
 } = Astro.props;
 
-// URL canónica para las metaetiquetas
-const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://radiovolketainterestelar.com');
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://radio.noisk8.xyz');
 ---
 
 <!DOCTYPE html>
@@ -18,8 +12,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://radiovol
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests; default-src 'self' http: https: 'unsafe-inline' 'unsafe-eval' data: blob:;">
     <link rel="icon" type="image/x-icon" href="/rvi.ico" />
     <link href="https://fonts.googleapis.com/css2?family=Londrina+Solid:wght@300;400;900&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jplayer/2.9.2/jplayer/jquery.jplayer.min.js"></script>
     <title>{title}</title>
     <meta name="description" content={description} />
     
@@ -46,4 +43,4 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://radiovol
   :root {
     --font-londrina: 'Londrina Solid', cursive;
   }
-</style> 
+</style>

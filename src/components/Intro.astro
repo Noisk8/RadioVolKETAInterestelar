@@ -32,13 +32,16 @@ try {
         Escuchar Radio Volketa Interestelar
       </h1>
       <div id="player-container" class="relative">
-        <iframe
+        <audio 
           id="radio-player"
-          src="http://srv788502.hstgr.cloud:8001/radiovolketainterestelar.ogg"
+          src="http://82.25.92.57:8001/radiovolketainterestelar.ogg"
+          controls
+          crossorigin="anonymous"
+          preload="none"
           class="w-full rounded-lg shadow-md"
-        />
-          <p>Tu navegador no soporta el elemento audio. Por favor actualiza tu navegador.</p>
-        
+        >
+     
+        </audio>
         <div id="loading-overlay" class="invisible opacity-0 absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center transition-all duration-300">
           <div class="text-white text-center p-4">
             <div class="loading-spinner mb-2"></div>
