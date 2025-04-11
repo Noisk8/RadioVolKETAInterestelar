@@ -29,13 +29,13 @@ try {
       </h1>
       <audio 
         id="radio-player"
-        src="http://82.25.92.57:8001/radiovolketainterestelar.ogg"
+        src="http://srv788502.hstgr.cloud:8001/radiovolketainterestelar.ogg"
         controls
         crossorigin="anonymous"
-        autoplay 
+        preload="none"
         class="w-full rounded-lg shadow-md"
       >
-        <!-- Fuente alternativa usando proxy HTTPS -->
+        <!-- Fuentes alternativas -->
         <source src="https://cors.bitwize.com.lb/http://srv788502.hstgr.cloud:8001/radiovolketainterestelar.ogg" type="application/ogg">
         <!-- Mensaje si el navegador no soporta audio -->
         <p>Tu navegador no soporta el elemento audio. Por favor actualiza tu navegador.</p>
@@ -43,12 +43,27 @@ try {
     </div>
 
     <div class="text-center mb-4">
-      <p class="text-sm text-gray-600 space-y-2">
-        <span class="block">Si el reproductor no funciona:</span>
-        <a href="https://srv788502.hstgr.cloud:8001/radiovolketainterestelar.ogg" target="_blank" class="inline-block px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
-          Acceder al stream directamente
-        </a>
-      </p>
+      <div class="space-y-4">
+        <p class="text-sm text-gray-600">
+          <span class="block font-medium mb-2">Opciones de reproducción:</span>
+          <span class="block text-xs text-gray-500 mb-2">Si el reproductor principal no funciona, prueba estas alternativas:</span>
+        </p>
+        <div class="flex flex-col gap-2">
+          <a href="http://srv788502.hstgr.cloud:8001/radiovolketainterestelar.ogg" 
+             target="_blank" 
+             class="inline-block px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+            Stream Directo (HTTP)
+          </a>
+          <a href="https://cors.bitwize.com.lb/http://srv788502.hstgr.cloud:8001/radiovolketainterestelar.ogg" 
+             target="_blank" 
+             class="inline-block px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
+            Stream Proxy (HTTPS)
+          </a>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">
+          Próximamente: radiovolketa.duckdns.org con SSL
+        </p>
+      </div>
     </div>
 
     <!-- Información de la canción actual -->
