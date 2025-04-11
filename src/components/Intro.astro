@@ -91,8 +91,8 @@ try {
     // Actualizar inmediatamente al cargar
     actualizarCancion();
     
-    // Actualizar cada 5 segundos para no sobrecargar el servidor
-    setInterval(actualizarCancion, 5000);
+    // Actualizar cada 10 segundos para no sobrecargar el servidor
+    setInterval(actualizarCancion, 10000);
 
     // También actualizar cuando el reproductor comienza a reproducir
     const player = document.getElementById('radio-player');
