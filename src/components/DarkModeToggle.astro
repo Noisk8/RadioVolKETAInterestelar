@@ -2,19 +2,18 @@
 ---
 <mode-toggle class="flex">
   <button
-    class="justify-self-end bg-black dark:bg-white ml-4 inline-flex h-6 w-11 items-center rounded-full"
+    class="mode-toggle-button"
     id="mode-toggle"
     role="switch"
     type="button"
     tabindex="0"
     aria-checked="false"
     data-headlessui-state=""
-    ><span class="sr-only">Toggle dark mode</span><span
-      id="mode-circle"
-      class="light inline-block h-4 w-4 rounded-full bg-gradient-to-tr invisible"
-      ><span
-        class="absolute top-0 right-0 w-[10px] h-[10px] rounded-full bg-gray-700 scale-[0]"
-      ></span>
+  >
+    <span class="sr-only">Alternar tema</span>
+    <span id="mode-circle" class="toggle-indicator">
+      <span class="toggle-icon toggle-icon--sun" aria-hidden="true">☀</span>
+      <span class="toggle-icon toggle-icon--moon" aria-hidden="true">☾</span>
     </span>
   </button>
 </mode-toggle>
@@ -30,14 +29,14 @@
       document.documentElement.classList.add("dark");
       if (themeColorMetaTag) {
         // @ts-ignore
-        themeColorMetaTag.content = "#262626";
+        themeColorMetaTag.content = "#12110E";
       }
     } else {
       document.documentElement.classList.remove("dark");
       document.documentElement.classList.add("light");
       if (themeColorMetaTag) {
         // @ts-ignore
-        themeColorMetaTag.content = "#ffffff";
+        themeColorMetaTag.content = "#f8f5e8";
       }
     }
   }
@@ -58,37 +57,23 @@
       const iconElem = toggle?.querySelector("#mode-circle");
 
       if (iconElem) {
-        // set the toggle mode based on the html classname set in ThemeScript.astro
-        if (currentMode === "dark") {
-          iconElem.classList.remove("light");
-          iconElem.classList.add("dark");
-        }
+        iconElem.classList.add(currentMode === "dark" ? "is-dark" : "is-light");
 
-        // we load the toggle invisible to prevent flash
-        // remove visibility class after setting initial dark/light class
-        iconElem.classList.remove("invisible");
-
-        // Each time the button is clicked, update the count.
         toggle?.addEventListener("click", () => {
           if (currentMode === "dark") {
             const modeToSwitch = "light";
-            iconElem.classList.remove("dark");
-            iconElem.classList.add("light");
+            iconElem.classList.remove("is-dark");
+            iconElem.classList.add("is-light");
             updateHTMLTheme(modeToSwitch);
             updateStorageTheme(modeToSwitch);
             currentMode = modeToSwitch;
           } else {
             const modeToSwitch = "dark";
-            iconElem.classList.remove("light");
-            iconElem.classList.add("dark");
+            iconElem.classList.remove("is-light");
+            iconElem.classList.add("is-dark");
             updateHTMLTheme(modeToSwitch);
             updateStorageTheme(modeToSwitch);
             currentMode = modeToSwitch;
-          }
-
-          // prevent slide animation on page load for dark mode
-          if (!iconElem.classList.contains("duration-300")) {
-            iconElem.classList.add("duration-300");
           }
         });
       }
@@ -99,12 +84,67 @@
 </script>
 
 <style>
-  .light {
-    transform: translateX(0.25rem);
-    background-color: rgb(var(--color-primary-yellow));
+  .mode-toggle-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 2rem;
+    border-radius: 999px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-card));
+    box-shadow: 4px 4px 0 rgba(var(--shadow-soft) / 0.15);
+    transition: transform 0.2s ease;
   }
-  .dark {
-    transform: translateX(1.5rem);
-    background-color: rgb(var(--color-primary-blue));
+
+  .mode-toggle-button:focus-visible {
+    outline: 2px solid rgba(var(--color-border-ink) / 0.6);
+    outline-offset: 3px;
+  }
+
+  .mode-toggle-button:hover {
+    transform: translateY(-1px);
+  }
+
+  .toggle-indicator {
+    position: relative;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background: rgb(var(--color-primary-yellow));
+    display: grid;
+    place-items: center;
+    transition: transform 0.35s ease, background 0.35s ease;
+  }
+
+  .toggle-indicator.is-dark {
+    transform: translateX(0.8rem);
+    background: rgb(31 29 25 / 0.85);
+    color: rgb(var(--color-primary-blue));
+  }
+
+  .toggle-indicator.is-light {
+    transform: translateX(-0.8rem);
+  }
+
+  .toggle-icon {
+    position: absolute;
+    font-size: 0.85rem;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  .toggle-icon--sun {
+    opacity: 1;
+  }
+
+  .toggle-indicator.is-dark .toggle-icon--sun {
+    opacity: 0;
+  }
+
+  .toggle-indicator.is-dark .toggle-icon--moon {
+    opacity: 1;
+    color: rgb(var(--color-primary-yellow));
   }
 </style>

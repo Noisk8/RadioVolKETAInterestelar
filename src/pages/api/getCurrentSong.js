@@ -14,6 +14,6 @@ export async function get() {
   
   // Si no se pudo obtener datos, devolver mensaje informativo
   return new Response(JSON.stringify({
-    title: "Transmitiendo en vivo - Radio Volketa Interestelar"
+    title: "Transmitiendo en vivo - Kabalah Radio"
   }));
 }

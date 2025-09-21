@@ -2,12 +2,11 @@
 import PageMeta from "../components/PageMeta.astro";
 import PageLayout from "../layouts/PageLayout.astro";
 import Intro from "../components/Intro.astro";
-import AboutTheTheme from "../components/AboutTheTheme.astro";
 import { SITE_TITLE } from "../config";
 
 ---
 
-<PageLayout>
+<PageLayout containerClass="max-w-7xl">
   <PageMeta title={`${SITE_TITLE} | Orbitando Frecuencias`} slot="meta" />
   <Fragment slot="main">
     <Intro />

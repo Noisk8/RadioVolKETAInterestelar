@@ -1,40 +1,111 @@
 ---
-
 ---
 
-<div class="flex flex-col items-center justify-center min-h-screen p-4 font-londrina">
+<section class="nouns-view">
+  <div class="nouns-card">
+    <header class="nouns-header">
+      <span class="nouns-chip">⌐◨-◨ Nouns Amigos</span>
+      <h1>Residencia sonora con Kabalah Radio</h1>
+      <p>
+        Sesiones, archivos y colaboraciones construidas junto a la comunidad Nouns. Escucha el stream dedicado y descubre los episodios especiales.
+      </p>
+    </header>
 
-
-  <img src="https://raw.githubusercontent.com/Noisk8/RadioVolKETAInterestelar/refs/heads/main/public/155777732.png" alt="Nouns Amigos" class="w-32 h-32 rounded-full shadow-lg mb-4" />
-  <h1 class="text-2xl font-bold mb-4 dark:text-red-600  text-red-500 font-londrina">
-    ⌐◨-◨ Nouns Amigos x Radio Volketa Interestelar ⌐◨-◨
-  </h1>
-  <div class="w-full max-w-md mx-auto mb-8 text-center font-londrina"> 
-  
-    <audio 
-      src="https://stream.p-node.org/contretemps.mp3" 
-      controls
-      autoplay 
-      class="w-full rounded-lg shadow-md"
-    ></audio>
+    <div class="nouns-audio">
+      <audio src="https://stream.p-node.org/contretemps.mp3" controls preload="none"></audio>
+      <p class="nouns-help">Si deja de sonar, recarga la página o abre el player en una nueva pestaña.</p>
+      <a class="nouns-link" href="https://radio.noisk8.xyz/episodios" target="_blank" rel="noreferrer">
+        Ver episodios
+        <span class="fa-solid fa-arrow-right-long" aria-hidden="true"></span>
+      </a>
+    </div>
   </div>
-
-  <div>
-    <p class="dark:text-blue-300">⌐◨-◨ Si deja de sonar recargue la página ⌐◨-◨</p>
-  </div>
-
-
-<div class=" pt-8">
-  <a href="https://radio.noisk8.xyz/episodios">    <h2 class="text-2xl font-londrina">Ver episodios</h2> </a>
-
-</div>
-
-</div>
+</section>
 
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Londrina+Solid&display=swap');
-  
-  .font-londrina {
-    font-family: 'Londrina Solid', cursive;
+  .nouns-view {
+    min-height: calc(100vh - 12rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nouns-card {
+    display: grid;
+    gap: 2.4rem;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-card));
+    box-shadow: 12px 12px 0 rgba(var(--shadow-soft) / 0.16);
+    padding: clamp(1.8rem, 4vw, 3rem);
+    max-width: 42rem;
+  }
+
+  .nouns-header {
+    display: grid;
+    gap: 1.2rem;
+    text-align: center;
+  }
+
+  .nouns-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.55rem 1.2rem;
+    border-radius: 999px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-primary-yellow));
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    color: rgb(var(--color-text-heading));
+    box-shadow: 6px 6px 0 rgba(var(--shadow-soft) / 0.16);
+  }
+
+  .nouns-header h1 {
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 600;
+    color: rgb(var(--color-text-heading));
+  }
+
+  .nouns-header p {
+    color: rgb(var(--color-text-muted));
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .nouns-audio {
+    display: grid;
+    gap: 1.2rem;
+  }
+
+  .nouns-audio audio {
+    width: 100%;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-elevated));
+    padding: 0.6rem;
+  }
+
+  .nouns-help {
+    font-size: 0.85rem;
+    color: rgb(var(--color-text-muted));
+    letter-spacing: 0.05em;
+  }
+
+  .nouns-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    width: fit-content;
+    margin: 0 auto;
+    padding: 0.6rem 1.3rem;
+    border-radius: 999px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-card));
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    color: rgb(var(--color-text-heading));
+    box-shadow: 5px 5px 0 rgba(var(--shadow-soft) / 0.12);
   }
 </style>

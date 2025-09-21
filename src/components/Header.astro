@@ -3,30 +3,118 @@ import Nav from "./Nav.astro";
 import DarkModeToggle from "./DarkModeToggle.astro";
 ---
 
-<header class="">
+<header class="space-y-10">
   <a
-    class="unset absolute z-10 left-[50%] -top-[100rem] translate-x-[-50%] bg-white text-black px-8 py-2 focus:top-[initial]"
+    class="skip-link focus-visible:top-0"
     href="#main"
   >
-    Skip to content
+    Saltar al contenido
   </a>
-  <Nav />
-  <div
-    class="justify-self-end py-2 flex items-center content-center text-text-bold"
-  >
-   
-   
+
+  <div class="header-frame">
+    <div class="header-corners" aria-hidden="true">
+      <span class="corner corner--tl"></span>
+      <span class="corner corner--tr"></span>
+      <span class="corner corner--bl"></span>
+      <span class="corner corner--br"></span>
+    </div>
+    <div class="flex flex-wrap items-center justify-between gap-6 px-6 py-5 sm:px-10">
+      <div class="flex items-center gap-6">
+        <div class="brand-mark">
+          <img src="/LOGO.jpg" alt="Kabalah Radio" class="brand-logo" loading="lazy" />
+        </div>
+        <div class="flex flex-col gap-1 text-text-heading">
+          <span class="tracking-[0.45em] text-xs uppercase">Kabalah Radio</span>
+          <span class="hidden text-xs uppercase tracking-[0.35em] text-text-muted md:inline">Orbitando frecuencias alternativas</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-6">
+        <Nav />
+        <DarkModeToggle />
+      </div>
+    </div>
   </div>
-  <DarkModeToggle />
 </header>
+
 <style>
-  header {
-    grid-area: header;
-    display: grid;
+  .skip-link {
+    position: absolute;
+    left: 50%;
+    top: -100rem;
+    transform: translateX(-50%);
+    background: rgb(var(--color-bg-card));
+    color: rgb(var(--color-text-heading));
+    padding: 0.75rem 1.5rem;
+    border: 2px solid rgb(var(--color-border-ink));
+    border-radius: 9999px;
+    z-index: 50;
+    text-decoration: none;
+    box-shadow: 6px 6px 0 rgba(var(--shadow-soft) / 0.18);
+    transition: top 0.2s ease;
+  }
+
+  .skip-link:focus-visible {
+    outline: none;
+  }
+
+  .header-frame {
+    position: relative;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-card));
+    box-shadow: 8px 8px 0 rgba(var(--shadow-soft) / 0.12);
+  }
+
+  .header-corners .corner {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-body));
+  }
+
+  .header-corners .corner::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+  }
+
+  .corner--tl {
+    top: -9px;
+    left: -9px;
+  }
+
+  .corner--tr {
+    top: -9px;
+    right: -9px;
+  }
+
+  .corner--bl {
+    bottom: -9px;
+    left: -9px;
+  }
+
+  .corner--br {
+    bottom: -9px;
+    right: -9px;
+  }
+
+  .brand-mark {
+    display: inline-flex;
     align-items: center;
-    grid-template-columns: minmax(0, 1fr) minmax(0, max-content) minmax(
-        0,
-        max-content
-      );
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-body));
+    box-shadow: 4px 4px 0 rgba(var(--shadow-soft) / 0.14);
+    overflow: hidden;
+  }
+
+  .brand-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 </style>

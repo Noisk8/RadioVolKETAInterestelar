@@ -1,0 +1,138 @@
+---
+const channel = "kabalah";
+---
+
+<aside class="chat-shell">
+  <div class="chat-frame">
+    <span class="chat-tag">tlk.io</span>
+    <div class="chat-body">
+      <div id="chat-placeholder" class="chat-placeholder">
+        <span class="chat-dot"></span>
+        <p>Cargando chat</p>
+      </div>
+      <div
+        id="tlkio"
+        data-channel={channel}
+        data-theme="theme--night"
+        class="chat-embed"
+      ></div>
+    </div>
+  </div>
+</aside>
+
+<client:load>
+  <script type="module">
+    const placeholder = document.getElementById("chat-placeholder");
+    const container = document.getElementById("tlkio");
+
+    if (container && placeholder) {
+      const observer = new MutationObserver(() => {
+        if (container.children.length > 0) {
+          placeholder.classList.add("is-hidden");
+          observer.disconnect();
+        }
+      });
+
+      observer.observe(container, { childList: true });
+    }
+  </script>
+  <script async src="https://tlk.io/embed.js" type="text/javascript"></script>
+</client:load>
+
+<style>
+  .chat-shell {
+    position: relative;
+    height: 100%;
+    width: 100%;
+  }
+
+  .chat-shell::before {
+    content: "";
+    position: absolute;
+    inset: -14px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    opacity: 0.85;
+    z-index: -2;
+  }
+
+  .chat-shell::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-card));
+    z-index: -1;
+    box-shadow: 12px 12px 0 rgba(var(--shadow-soft) / 0.18);
+  }
+
+  .chat-frame {
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 1rem;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-card));
+    padding: clamp(0.95rem, 2vw, 1.4rem);
+  }
+
+  .chat-tag {
+    justify-self: end;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.32rem 0.8rem;
+    border-radius: 999px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-body));
+    font-size: 0.68rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    box-shadow: 4px 4px 0 rgba(var(--shadow-soft) / 0.12);
+  }
+
+  .chat-body {
+    position: relative;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-elevated));
+    min-height: 260px;
+    height: 100%;
+  }
+
+  .chat-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: rgb(var(--color-text-muted));
+    background: rgba(var(--color-bg-card) / 0.88);
+  }
+
+  .chat-placeholder.is-hidden {
+    display: none;
+  }
+
+  .chat-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgb(var(--color-primary-yellow));
+    animation: bounce 1.5s ease-in-out infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
+  .chat-embed {
+    position: relative;
+    height: 100%;
+    min-height: 260px;
+  }
+</style>

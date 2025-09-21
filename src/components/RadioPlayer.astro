@@ -1,0 +1,803 @@
+---
+const STREAM_URL = "https://stream.p-node.org/contretemps.mp3";
+const STATUS_URL = "http://srv788502.hstgr.cloud:8001/status-json.xsl";
+
+interface StreamInfo {
+  title?: string;
+  artist?: string;
+}
+
+let current: StreamInfo = {
+  title: "KBalah",
+  artist: "Transmitiendo en vivo",
+};
+
+try {
+  const response = await fetch(STATUS_URL);
+  if (response.ok) {
+    const data = await response.json();
+    const source = Array.isArray(data?.icestats?.source)
+      ? data?.icestats?.source?.[0]
+      : data?.icestats?.source;
+
+    if (source) {
+      current = {
+        title: source.title || current.title,
+        artist: source.artist || current.artist,
+      };
+    }
+  }
+} catch (error) {
+  console.error("No se pudo obtener el título inicial del stream", error);
+}
+---
+
+<section class="radio-shell">
+  <div class="radio-content">
+    <header class="radio-headline">
+      <div class="eq-badge" aria-hidden="true">
+        <span class="eq-bar" style="animation-delay: 0ms"></span>
+        <span class="eq-bar" style="animation-delay: 120ms"></span>
+        <span class="eq-bar" style="animation-delay: 240ms"></span>
+        <span class="eq-bar" style="animation-delay: 360ms"></span>
+        <span class="eq-bar" style="animation-delay: 480ms"></span>
+      </div>
+      <div class="radio-titles">
+        <p class="headline-kicker"></p>
+        <h2 id="song-title">{current.title}</h2>
+        <p id="artist-name">{current.artist}</p>
+      </div>
+    </header>
+
+    <div class="player-surface">
+      <div id="player-status" class="player-status hidden">
+        <span class="status-dot"></span>
+        Conectando señal
+      </div>
+      <audio
+        id="radio-player"
+        class="w-full bg-transparent px-6 pb-6 pt-12"
+        src={STREAM_URL}
+        preload="none"
+        crossorigin="anonymous"
+      ></audio>
+    </div>
+
+    <div class="player-foot">
+      <div class="timeline-row">
+        <span id="player-elapsed" class="time-chip">00:00</span>
+        <div class="timeline-track">
+          <div class="progress-track">
+            <div id="player-progress-fill" class="progress-fill"></div>
+          </div>
+          <input
+            id="player-progress"
+            type="range"
+            min="0"
+            value="0"
+            step="1"
+            class="progress-range"
+            aria-label="Avance de la pista"
+          />
+        </div>
+        <span id="player-remaining" class="time-chip live-indicator"></span>
+      </div>
+
+      <div class="action-row">
+        <button
+          id="player-toggle"
+          class="player-control is-offline"
+          type="button"
+          aria-label="Reproducir"
+        >
+          <span class="player-symbol">
+            <span class="player-icon" aria-hidden="true"></span>
+          </span>
+          <span class="player-label">Play</span>
+        </button>
+
+        <div class="volume-block">
+          <span class="volume-kicker">Volumen</span>
+          <div class="volume-control">
+            <span class="fa-solid fa-volume-low" aria-hidden="true"></span>
+            <input
+              id="player-volume"
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value="0.8"
+              class="volume-range"
+              aria-label="Volumen"
+            />
+          </div>
+        </div>
+
+        <a
+          href="https://srv788502.hstgr.cloud:8001/radiovolketainterestelar.ogg"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="external-link"
+        >
+          Abrir en nueva ventana
+          <span class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<client:load>
+  <script type="module">
+    const STATUS_URL = "http://srv788502.hstgr.cloud:8001/status-json.xsl";
+    const player = document.getElementById("radio-player");
+    const titleEl = document.getElementById("song-title");
+    const artistEl = document.getElementById("artist-name");
+    const toggleButton = document.getElementById("player-toggle");
+    const statusBanner = document.getElementById("player-status");
+    const progressInput = document.getElementById("player-progress");
+    const progressFill = document.getElementById("player-progress-fill");
+    const elapsedLabel = document.getElementById("player-elapsed");
+    const remainingLabel = document.getElementById("player-remaining");
+    const volumeInput = document.getElementById("player-volume");
+    const labelSpan = toggleButton?.querySelector(".player-label");
+
+    const formatTime = (secs) => {
+      if (!Number.isFinite(secs) || secs < 0) return "";
+      const total = Math.floor(secs);
+      const hours = Math.floor(total / 3600);
+      const minutes = Math.floor((total % 3600) / 60)
+        .toString()
+        .padStart(2, "0");
+      const seconds = Math.floor(total % 60)
+        .toString()
+        .padStart(2, "0");
+      if (hours > 0) {
+        return `${hours.toString().padStart(2, "0")}:${minutes}:${seconds}`;
+      }
+      return `${minutes}:${seconds}`;
+    };
+
+    let isLiveStream = true;
+
+    const togglePlayer = () => {
+      if (!player) return;
+      if (player.paused) {
+        player.play().catch((error) => {
+          console.error("No fue posible iniciar el stream", error);
+        });
+      } else {
+        player.pause();
+      }
+    };
+
+    const setLoading = (active) => {
+      if (!statusBanner) return;
+      if (active) {
+        statusBanner.textContent = "Conectando señal";
+        statusBanner.classList.remove("status-error");
+      }
+      statusBanner.classList.toggle("hidden", !active);
+      statusBanner.classList.toggle("is-visible", active);
+    };
+
+    const setLiveState = (isLive) => {
+      if (!toggleButton) return;
+      toggleButton.dataset.live = isLive ? "on" : "off";
+      toggleButton.classList.toggle("is-live", isLive);
+      toggleButton.classList.toggle("is-offline", !isLive);
+    };
+
+    const updateDurationState = () => {
+      if (!player) return;
+      const { duration } = player;
+      const live = !Number.isFinite(duration) || duration <= 0;
+      isLiveStream = live;
+      if (progressInput) {
+        progressInput.disabled = live;
+        progressInput.classList.toggle("is-disabled", live);
+        if (!live) {
+          progressInput.max = Math.floor(duration).toString();
+        }
+      }
+      if (remainingLabel) {
+        remainingLabel.textContent = live ? "EN VIVO" : formatTime(duration);
+        remainingLabel.classList.toggle("live-active", live);
+      }
+    };
+
+    const updateProgressUI = (fromSlider = false) => {
+      if (!player) return;
+      const current = fromSlider && progressInput ? Number(progressInput.value) : player.currentTime;
+
+      if (elapsedLabel) {
+        elapsedLabel.textContent = formatTime(current);
+      }
+
+      if (isLiveStream) {
+        if (remainingLabel) {
+          remainingLabel.textContent = "EN VIVO";
+          remainingLabel.classList.add("live-active");
+        }
+        if (progressFill) {
+          const fraction = (player.currentTime % 8) / 8;
+          progressFill.style.transform = `scaleX(${0.2 + fraction * 0.8})`;
+        }
+        return;
+      }
+
+      const duration = player.duration || 1;
+      const percent = Math.min(current / duration, 1);
+      if (progressFill) {
+        progressFill.style.transform = `scaleX(${percent})`;
+      }
+      if (progressInput && !fromSlider) {
+        progressInput.value = current.toString();
+      }
+      if (remainingLabel) {
+        const remaining = Math.max(duration - current, 0);
+        remainingLabel.textContent = formatTime(remaining);
+        remainingLabel.classList.remove("live-active");
+      }
+    };
+
+    const updateToggleLabel = () => {
+      if (!toggleButton || !player) return;
+      const isPaused = player.paused;
+      const actionLabel = isPaused ? "Reproducir" : "Detener";
+      toggleButton.setAttribute("aria-label", actionLabel);
+      toggleButton.classList.toggle("is-playing", !isPaused);
+      if (labelSpan) {
+        labelSpan.textContent = isPaused ? "Play" : "Stop";
+      }
+      setLiveState(!player.paused);
+      updateProgressUI();
+    };
+
+    toggleButton?.addEventListener("click", () => {
+      togglePlayer();
+      setTimeout(updateToggleLabel, 50);
+    });
+
+    player?.addEventListener("play", () => {
+      updateToggleLabel();
+      updateDurationState();
+      updateProgressUI();
+    });
+    player?.addEventListener("pause", () => {
+      updateToggleLabel();
+      updateDurationState();
+      updateProgressUI();
+    });
+
+    player?.addEventListener("waiting", () => setLoading(true));
+    player?.addEventListener("loadstart", () => {
+      setLoading(true);
+      updateDurationState();
+    });
+    player?.addEventListener("playing", () => {
+      setLoading(false);
+      setLiveState(true);
+      updateDurationState();
+      updateProgressUI();
+    });
+    player?.addEventListener("canplay", () => {
+      setLoading(false);
+      updateDurationState();
+    });
+
+    player?.addEventListener("error", () => {
+      setLoading(false);
+      setLiveState(false);
+      if (!statusBanner) return;
+      statusBanner.textContent = "No se pudo conectar, intenta de nuevo";
+      statusBanner.classList.remove("hidden");
+      statusBanner.classList.add("is-visible", "status-error");
+      remainingLabel?.classList.remove("live-active");
+      if (remainingLabel && !isLiveStream) {
+        remainingLabel.textContent = formatTime(player?.duration || 0);
+      }
+    });
+
+    let currentTitle = titleEl?.textContent ?? "";
+    let currentArtist = artistEl?.textContent ?? "";
+
+    async function refreshNowPlaying() {
+      try {
+        const request = await fetch(STATUS_URL, { cache: "no-store" });
+        if (!request.ok) return;
+
+        const payload = await request.json();
+        const source = Array.isArray(payload?.icestats?.source)
+          ? payload.icestats.source[0]
+          : payload?.icestats?.source;
+
+        if (source && (source.title || source.artist)) {
+          if (titleEl && source.title && source.title !== currentTitle) {
+            titleEl.textContent = source.title;
+            titleEl.classList.add("text-highlight");
+            setTimeout(() => titleEl.classList.remove("text-highlight"), 600);
+            currentTitle = source.title;
+          }
+
+          if (artistEl && source.artist && source.artist !== currentArtist) {
+            artistEl.textContent = source.artist;
+            artistEl.classList.add("text-highlight");
+            setTimeout(() => artistEl.classList.remove("text-highlight"), 600);
+            currentArtist = source.artist;
+          }
+        }
+      } catch (error) {
+        console.error("No se pudo refrescar la canción", error);
+      }
+    }
+
+    refreshNowPlaying();
+    setInterval(refreshNowPlaying, 15000);
+    updateToggleLabel();
+    setLiveState(false);
+
+    player?.addEventListener("loadedmetadata", () => {
+      updateDurationState();
+      updateProgressUI();
+    });
+    player?.addEventListener("durationchange", updateDurationState);
+    player?.addEventListener("timeupdate", () => updateProgressUI());
+
+    progressInput?.addEventListener("input", () => {
+      if (isLiveStream) return;
+      updateProgressUI(true);
+    });
+    progressInput?.addEventListener("change", () => {
+      if (!player || isLiveStream) return;
+      const value = Number(progressInput.value);
+      if (Number.isFinite(value)) {
+        player.currentTime = value;
+      }
+    });
+
+    if (volumeInput && player) {
+      const initialVolume = Number(volumeInput.value);
+      if (Number.isFinite(initialVolume)) {
+        player.volume = initialVolume;
+      }
+      volumeInput.addEventListener("input", () => {
+        const vol = Number(volumeInput.value);
+        if (Number.isFinite(vol)) {
+          player.volume = vol;
+        }
+      });
+    }
+  </script>
+
+<style>
+  .radio-shell {
+    border: none;
+    width: 100%;
+  }
+
+  .radio-content {
+    position: relative;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-card));
+    box-shadow: 12px 12px 0 rgba(var(--shadow-soft) / 0.16);
+    padding: clamp(1.9rem, 3.2vw, 2.8rem);
+    display: grid;
+    gap: clamp(1.8rem, 3vw, 2.4rem);
+  }
+
+  .radio-headline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: center;
+  }
+
+  .headline-kicker {
+    font-size: 0.75rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: rgb(var(--color-text-muted));
+  }
+
+  .radio-titles {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .radio-titles h2 {
+    font-size: clamp(2rem, 3vw, 2.6rem);
+    font-weight: 600;
+    color: rgb(var(--color-text-heading));
+  }
+
+  .radio-titles p {
+    color: rgb(var(--color-text-muted));
+    font-size: 0.95rem;
+  }
+
+  .eq-badge {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 6px;
+    border-radius: 16px;
+    padding: 10px 14px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-body));
+    box-shadow: 5px 5px 0 rgba(var(--shadow-soft) / 0.16);
+  }
+
+  .eq-bar {
+    width: 5px;
+    height: 22px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, rgba(var(--color-primary-blue) / 0.9), rgba(var(--color-primary-pink) / 0.85));
+    animation: eqPulse 1.6s ease-in-out infinite;
+    transform-origin: center bottom;
+  }
+
+  @keyframes eqPulse {
+    0%,
+    100% {
+      transform: scaleY(0.35);
+      opacity: 0.7;
+    }
+    40% {
+      transform: scaleY(1.1);
+      opacity: 1;
+    }
+    70% {
+      transform: scaleY(0.5);
+      opacity: 0.85;
+    }
+  }
+
+  .player-surface {
+    position: relative;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-elevated));
+    padding: 2.4rem 2rem 2rem;
+    box-shadow: inset 0 0 0 1px rgba(var(--color-border-ink) / 0.08);
+  }
+
+  .player-status {
+    position: absolute;
+    left: 2rem;
+    right: 2rem;
+    top: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 0.45rem 0.9rem;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    border-radius: 999px;
+    background: rgb(var(--color-bg-card));
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4em;
+    color: rgb(var(--color-text-heading));
+    box-shadow: 4px 4px 0 rgba(var(--shadow-soft) / 0.12);
+  }
+
+  .player-status.status-error {
+    background: rgb(234 84 85 / 0.9);
+    color: rgb(255 247 235 / 1);
+  }
+
+  .player-status.hidden {
+    display: none;
+  }
+
+  .player-status.is-visible {
+    display: flex;
+  }
+
+  .status-dot {
+    display: inline-block;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: rgb(var(--color-primary-yellow));
+    box-shadow: 0 0 0 4px rgba(var(--color-primary-yellow) / 0.25);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(0.9);
+      opacity: 0.75;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 1;
+    }
+  }
+
+  .player-foot {
+    display: grid;
+    gap: clamp(1.4rem, 2.5vw, 2rem);
+  }
+
+  .timeline-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .timeline-track {
+    position: relative;
+    width: 100%;
+  }
+
+  .progress-track {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: rgba(var(--color-border-ink) / 0.12);
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .progress-fill {
+    position: absolute;
+    inset: 0;
+    transform-origin: left center;
+    transform: scaleX(0);
+    background: linear-gradient(90deg, rgba(var(--color-primary-blue) / 0.75), rgba(var(--color-primary-yellow) / 0.9));
+    transition: transform 0.15s ease-out;
+    pointer-events: none;
+  }
+
+  .progress-range {
+    position: relative;
+    width: 100%;
+    appearance: none;
+    background: transparent;
+    height: 1.5rem;
+    cursor: pointer;
+  }
+
+  .progress-range:focus-visible {
+    outline: none;
+  }
+
+  .progress-range.is-disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .progress-range::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    background: rgb(var(--color-bg-card));
+    border: 1.5px solid rgb(var(--color-border-ink));
+    box-shadow: 0 0 0 4px rgba(var(--color-border-ink) / 0.08);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .progress-range::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    background: rgb(var(--color-bg-card));
+    border: 1.5px solid rgb(var(--color-border-ink));
+    box-shadow: 0 0 0 4px rgba(var(--color-border-ink) / 0.08);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .progress-range:hover::-webkit-slider-thumb,
+  .progress-range:focus-visible::-webkit-slider-thumb,
+  .progress-range:hover::-moz-range-thumb,
+  .progress-range:focus-visible::-moz-range-thumb {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 6px rgba(var(--color-border-ink) / 0.12);
+  }
+
+  .time-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 3.5rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-body));
+    color: rgb(var(--color-text-heading));
+    letter-spacing: 0.1em;
+    box-shadow: 3px 3px 0 rgba(var(--shadow-soft) / 0.16);
+  }
+
+  .live-indicator.live-active {
+    background: rgb(232 82 74 / 0.9);
+    color: rgb(255 248 235 / 1);
+    box-shadow: 4px 4px 0 rgba(232, 82, 74, 0.28);
+    gap: 0.35rem;
+    padding-inline: 1rem;
+  }
+
+  .live-indicator.live-active::before {
+    content: "";
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background: currentColor;
+  }
+
+  .action-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+    align-items: center;
+  }
+
+  .player-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 1.5rem;
+    border-radius: 999px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-card));
+    box-shadow: 6px 6px 0 rgba(var(--shadow-soft) / 0.16);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+
+  .player-control:hover {
+    transform: translateY(-2px);
+  }
+
+  .player-control:focus-visible {
+    outline: 2px solid rgba(var(--color-border-ink) / 0.4);
+    outline-offset: 4px;
+  }
+
+  .player-symbol {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 0.9rem;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-body));
+    box-shadow: 4px 4px 0 rgba(var(--shadow-soft) / 0.16);
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+
+  .player-icon {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 8px 0 8px 13px;
+    border-color: transparent transparent transparent rgb(var(--color-border-ink));
+    transition: border-width 0.2s ease, width 0.2s ease, height 0.2s ease, background 0.2s ease;
+  }
+
+  .player-control.is-playing .player-icon {
+    border-width: 0;
+    width: 13px;
+    height: 13px;
+    border-radius: 0.25rem;
+    background: rgb(var(--color-border-ink));
+  }
+
+  .player-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: rgb(var(--color-text-heading));
+  }
+
+  .player-control.is-live {
+    background: rgb(64 181 123 / 0.92);
+    box-shadow: 6px 6px 0 rgba(64, 181, 123, 0.35);
+    color: rgb(8 42 23 / 1);
+  }
+
+  .player-control.is-live .player-symbol {
+    background: rgb(255 253 245 / 0.9);
+  }
+
+  .player-control.is-live .player-icon {
+    border-color: transparent transparent transparent rgb(8, 42, 23);
+  }
+
+  .player-control.is-live.is-playing .player-icon {
+    background: rgb(8, 42, 23);
+  }
+
+  .player-control.is-offline {
+    background: rgb(var(--color-primary-pink));
+    box-shadow: 6px 6px 0 rgba(var(--shadow-soft) / 0.2);
+  }
+
+  .player-control.is-offline .player-symbol {
+    background: rgb(var(--color-bg-card));
+  }
+
+  .player-control[data-live="off"]:hover,
+  .player-control[data-live="on"]:hover {
+    filter: brightness(1.02);
+  }
+
+  .volume-block {
+    display: grid;
+    gap: 0.4rem;
+    min-width: 160px;
+  }
+
+  .volume-kicker {
+    font-size: 0.68rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgb(var(--color-text-muted));
+  }
+
+  .volume-control {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: rgb(var(--color-text-heading));
+  }
+
+  .volume-control .fa-solid {
+    font-size: 0.8rem;
+  }
+
+  .volume-range {
+    width: 120px;
+    appearance: none;
+    height: 0.25rem;
+    border-radius: 999px;
+    background: rgba(var(--color-border-ink) / 0.18);
+    cursor: pointer;
+  }
+
+  .volume-range:focus-visible {
+    outline: none;
+  }
+
+  .volume-range::-webkit-slider-thumb {
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    background: rgb(var(--color-bg-card));
+    border: 1.5px solid rgb(var(--color-border-ink));
+  }
+
+  .volume-range::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    background: rgb(var(--color-bg-card));
+    border: 1.5px solid rgb(var(--color-border-ink));
+  }
+
+  .external-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.3rem;
+    border-radius: 999px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-card));
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgb(var(--color-text-heading));
+    box-shadow: 5px 5px 0 rgba(var(--shadow-soft) / 0.16);
+  }
+
+  .external-link:hover {
+    transform: translateY(-2px);
+  }
+</style>
+</client:load>

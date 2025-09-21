@@ -1,0 +1,203 @@
+---
+interface Cancion {
+  titulo: string;
+  audioUrl?: string;
+}
+
+interface Props {
+  titulo: string;
+  descripcion: string;
+  audioUrl: string;
+  imagenUrl: string;
+  canciones?: Cancion[];
+}
+
+const {
+  titulo,
+  descripcion,
+  audioUrl,
+  imagenUrl,
+  canciones = [],
+} = Astro.props;
+---
+
+<article class="episode-card">
+  <div class="episode-media">
+    <div class="frame-corners" aria-hidden="true">
+      <span class="corner corner--tl"></span>
+      <span class="corner corner--tr"></span>
+      <span class="corner corner--bl"></span>
+      <span class="corner corner--br"></span>
+    </div>
+    <img src={imagenUrl} alt={titulo} class="episode-image" loading="lazy" />
+    <span class="media-sticker">Set en órbita</span>
+  </div>
+
+  <div class="episode-content">
+    <header class="episode-header">
+      <h3>{titulo}</h3>
+      <p>{descripcion}</p>
+    </header>
+
+    <div class="episode-player">
+      <p class="player-label">Escucha completa</p>
+      <audio controls src={audioUrl} preload="metadata"></audio>
+    </div>
+
+    {canciones.length > 0 && (
+      <section class="episode-tracklist">
+        <p class="tracklist-title">Tracklist</p>
+        <ol>
+          {canciones.map((cancion, index) => (
+            <li>
+              <span class="track-number">{(index + 1).toString().padStart(2, "0")}</span>
+              <span class="track-title">{cancion.titulo}</span>
+            </li>
+          ))}
+        </ol>
+      </section>
+    )}
+  </div>
+</article>
+
+<style>
+  .episode-card {
+    display: grid;
+    gap: 1.75rem;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-card));
+    box-shadow: 10px 10px 0 rgba(var(--shadow-soft) / 0.16);
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+  }
+
+  @media (min-width: 900px) {
+    .episode-card {
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.1fr);
+      align-items: start;
+    }
+  }
+
+  .episode-media {
+    position: relative;
+    align-self: stretch;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-elevated));
+    padding: 1.2rem;
+  }
+
+  .episode-image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-card));
+  }
+
+  .frame-corners .corner {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-body));
+  }
+
+  .frame-corners .corner::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+  }
+
+  .corner--tl { top: -12px; left: -12px; }
+  .corner--tr { top: -12px; right: -12px; }
+  .corner--bl { bottom: -12px; left: -12px; }
+  .corner--br { bottom: -12px; right: -12px; }
+
+  .media-sticker {
+    position: absolute;
+    bottom: -1.3rem;
+    right: 1.5rem;
+    background: rgb(var(--color-primary-yellow));
+    border: 1.5px solid rgb(var(--color-border-ink));
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    box-shadow: 4px 4px 0 rgba(var(--shadow-soft) / 0.16);
+  }
+
+  .episode-content {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .episode-header h3 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: rgb(var(--color-text-heading));
+  }
+
+  .episode-header p {
+    margin-top: 0.5rem;
+    color: rgb(var(--color-text-muted));
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .episode-player {
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .episode-player audio {
+    width: 100%;
+    background: rgb(var(--color-bg-elevated));
+    border: 1.5px solid rgb(var(--color-border-ink));
+    padding: 0.5rem;
+  }
+
+  .player-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    color: rgb(var(--color-text-muted));
+  }
+
+  .episode-tracklist {
+    border-top: 1px solid rgb(var(--color-border-ink) / 0.2);
+    padding-top: 1rem;
+  }
+
+  .tracklist-title {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+    color: rgb(var(--color-text-muted));
+    margin-bottom: 0.9rem;
+  }
+
+  .episode-tracklist ol {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .episode-tracklist li {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .track-number {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.4em;
+    color: rgb(var(--color-text-heading));
+  }
+
+  .track-title {
+    color: rgb(var(--color-text-muted));
+    font-size: 0.95rem;
+  }
+</style>

@@ -12,9 +12,9 @@ module.exports = {
         transparent: "transparent",
         current: "currentColor",
         primary: {
-          blue: "rgb(var(--color-primary-blue) / <alpha-value>)",
-          green: "rgb(var(--color-primary-green) / <alpha-value>)",
           yellow: "rgb(var(--color-primary-yellow) / <alpha-value>)",
+          pink: "rgb(var(--color-primary-pink) / <alpha-value>)",
+          blue: "rgb(var(--color-primary-blue) / <alpha-value>)",
         },
         text: {
           body: "rgb(var(--color-text-body) / <alpha-value>)",
@@ -27,10 +27,13 @@ module.exports = {
         },
         bg: {
           body: "rgb(var(--color-bg-body) / <alpha-value>)",
+          elevated: "rgb(var(--color-bg-elevated) / <alpha-value>)",
+          card: "rgb(var(--color-bg-card) / <alpha-value>)",
           code: "rgb(var(--color-bg-code) / <alpha-value>)",
           selection: "rgb(var(--color-bg-selection) / <alpha-value>)",
         },
         border: {
+          ink: "rgb(var(--color-border-ink) / <alpha-value>)",
           code: "rgb(var(--color-border-code) / <alpha-value>)",
         },
       },

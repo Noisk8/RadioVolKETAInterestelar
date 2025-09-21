@@ -1,67 +1,44 @@
 ---
 import HeaderLink from "./HeaderLink.astro";
+
+const links = [
+  { href: "/", label: "Inicio" },
+  { href: "/nouns-episodios", label: "Episodios" },
+  { href: "/blog", label: "Blog" },
+  { href: "/projects", label: "Programas" },
+];
 ---
 
-<Fragment>
-  <nav class="hidden md:inline">
-    <section class="text-text-bold">
-      <ul class="unset flex gap-4 [&>li]:p-0">
-        <!-- <li><HeaderLink href="/">Home</HeaderLink></li>
-        <li><HeaderLink href="/blog">Podcasts</HeaderLink></li>
-        <li><HeaderLink href="/projects">Programas</HeaderLink></li> -->
-      </ul>
-    </section>
-  </nav>
-  <nav class="md:hidden">
-    <button id="mobile-menu-open">
-      <i class="fa-solid fa-bars" aria-hidden="true" title="Open mobile menu"
-      ></i>
-      <span class="fa-sr-only">Open mobile menu</span>
-    </button>
-    <section
-      id="mobile-menu"
-      class="hide-menu fixed top-0 left-0 z-10 w-full h-full transition-transform bg-black/75 border-primary-blue"
-    >
-      <div class="bg-bg-body w-[75%] h-full drop-shadow-2xl">
-        <button id="mobile-menu-close" class="px-6 h-[5rem] text-lg xml-[1px]">
-          <i
-            class="fa-solid fa-xmark"
-            aria-hidden="true"
-            title="Close mobile menu"></i>
-          <span class="fa-sr-only">Close mobile menu</span>
-        </button>
-        <ul class="unset flex flex-col text-text-bold gap-4 [&>li]:p-0 px-6">
-          <li><HeaderLink href="/">Home</HeaderLink></li>
-          <li><HeaderLink href="/blog">Podcasts</HeaderLink></li>
-          <li><HeaderLink href="/projects">Programas</HeaderLink></li>
-        </ul>
-      </div>
-    </section>
-  </nav>
-</Fragment>
+<nav class="flex items-center gap-6 text-sm font-medium text-text-heading">
+  <ul class="hidden items-center gap-6 border-l border-r border-border-ink/60 pl-6 pr-6 md:flex">
+    {links.map((link, index) => (
+      <li class="relative">
+        {index > 0 && (
+          <span class="absolute -left-4 top-1/2 hidden -translate-y-1/2 text-xs text-text-muted md:inline">//</span>
+        )}
+        <HeaderLink
+          href={link.href}
+          class="tracking-[0.35em] text-xs uppercase text-text-heading transition hover:text-text-body"
+        >
+          {link.label}
+        </HeaderLink>
+      </li>
+    ))}
+  </ul>
 
-<script>
-  // @ts-nocheck
-  document.querySelector("#mobile-menu-open").addEventListener("click", () => {
-    const menuElem = document.querySelector("#mobile-menu");
-    menuElem.classList.remove("hide-menu");
-    menuElem.classList.add("show-menu");
-    document.body.style.overflow = "hidden";
-  });
-
-  document.querySelector("#mobile-menu-close").addEventListener("click", () => {
-    const menuElem = document.querySelector("#mobile-menu");
-    menuElem.classList.remove("show-menu");
-    menuElem.classList.add("hide-menu");
-    document.body.style.overflow = "auto";
-  });
-</script>
-
-<style>
-  .hide-menu {
-    transform: translateX(-100%);
-  }
-  .show-menu {
-    transform: translateX(0%);
-  }
-</style>
+  <details class="group relative md:hidden">
+    <summary class="flex cursor-pointer items-center gap-2 rounded-full border border-border-ink/60 bg-bg-card px-4 py-2 text-xs uppercase tracking-[0.3em] text-text-heading">
+      Menú
+      <span class="text-[0.6rem]">▾</span>
+    </summary>
+    <ul class="absolute right-0 mt-3 w-48 space-y-1 rounded-2xl border border-border-ink bg-bg-card p-3 shadow-[6px_6px_0_rgba(27,24,20,0.12)]">
+      {links.map((link) => (
+        <li>
+          <HeaderLink href={link.href} class="block rounded-lg px-3 py-2 text-sm text-text-heading hover:bg-bg-elevated">
+            {link.label}
+          </HeaderLink>
+        </li>
+      ))}
+    </ul>
+  </details>
+</nav>

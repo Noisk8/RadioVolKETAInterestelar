@@ -1,5 +1,5 @@
 ---
-import { readOne, readAll } from "../../lib/markdoc/read";
+import { readAll } from "../../lib/markdoc/read";
 import { episodio } from "../../lib/markdoc/episodios.schema";
 import PageLayout from "../../layouts/PageLayout.astro";
 import PageMeta from "../../components/PageMeta.astro";
@@ -34,165 +34,219 @@ const formattedDate = new Date(date).toLocaleDateString("es-ES", {
 });
 ---
 
-<PageLayout>
+<PageLayout containerClass="max-w-5xl">
   <PageMeta title={`${title} | ${SITE_TITLE}`} description={description} slot="meta" />
-  <main slot="main" class="episode-content">
-    <article>
-      <div class="header">
+  <main slot="main" class="episode-view">
+    <a
+      href="/nouns-episodios"
+      class="back-chip"
+    >
+      <span class="fa-solid fa-arrow-left-long" aria-hidden="true"></span>
+      Volver
+    </a>
+
+    <article class="episode-sheet">
+      <header class="sheet-header">
+        <span class="sheet-title">Episodio destacado</span>
         <h1>{title}</h1>
         <time datetime={new Date(date).toISOString()}>{formattedDate}</time>
-      </div>
-      
-      <div class="episode-card">
-        <div class="image-container">
-          <img src={imageUrl} alt={title} />
+      </header>
+
+      <div class="sheet-image">
+        <div class="card-corners" aria-hidden="true">
+          <span class="corner corner--tl"></span>
+          <span class="corner corner--tr"></span>
+          <span class="corner corner--bl"></span>
+          <span class="corner corner--br"></span>
         </div>
-        
-        <div class="content">
-          <p class="description">{description}</p>
-          
-          <div class="audio-player">
-            <audio controls>
-              <source src={audioUrl} type="audio/mpeg">
-              Tu navegador no soporta el elemento de audio.
-            </audio>
-          </div>
-          
-          <div class="tracks-list">
-            <h2>Lista de canciones</h2>
-            <div class="tracks-grid">
-              {(tracks as Track[]).map((track: Track, index: number) => (
-                <div class="track-item">
-                  <span class="track-number">{(index + 1).toString().padStart(2, '0')}</span>
-                  <span class="track-title">{track.title}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        <img src={imageUrl} alt={title} loading="lazy" />
+        <span class="photo-note">Registro visual</span>
       </div>
+
+      <p class="sheet-description">{description}</p>
+
+      <section class="sheet-player">
+        <p class="section-kicker">Escucha completa</p>
+        <audio controls preload="metadata">
+          <source src={audioUrl} type="audio/mpeg" />
+          Tu navegador no soporta el elemento de audio.
+        </audio>
+      </section>
+
+      {Array.isArray(tracks) && tracks.length > 0 && (
+        <section class="sheet-tracklist">
+          <p class="section-kicker">Tracklist</p>
+          <div class="track-grid">
+            {(tracks as Track[]).map((track: Track, index: number) => (
+              <div class="track-row">
+                <span class="track-number">{(index + 1).toString().padStart(2, "0")}</span>
+                <span class="track-title">{track.title}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </article>
   </main>
 </PageLayout>
 
 <style>
-  .episode-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
+  .episode-view {
+    display: grid;
+    gap: 2rem;
   }
 
-  .header {
-    margin-bottom: 2rem;
-    text-align: center;
+  .back-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.6rem 1.3rem;
+    border-radius: 999px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-card));
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    box-shadow: 5px 5px 0 rgba(var(--shadow-soft) / 0.12);
+    width: fit-content;
   }
 
-  h1 {
-    font-family: 'Londrina Solid', cursive;
-    font-weight: 900;
-    font-size: 3rem;
-    color: #ee4a4a;
-    margin-bottom: 0.5rem;
+  .episode-sheet {
+    display: grid;
+    gap: 2.5rem;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-card));
+    box-shadow: 12px 12px 0 rgba(var(--shadow-soft) / 0.16);
+    padding: clamp(1.75rem, 3vw, 2.75rem);
   }
 
-  time {
-    color: var(--text-muted);
-  }
-
-  .episode-card {
-    background: var(--background-color);
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    border: 1px solid var(--border-color);
-  }
-
-  .image-container {
-    width: 100%;
-    height: 300px;
-    overflow: hidden;
-  }
-
-  .image-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .content {
-    padding: 2rem;
-  }
-
-  .description {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    margin-bottom: 2rem;
-    color: var(--text-color);
-  }
-
-  .audio-player {
-    margin-bottom: 2rem;
-  }
-
-  .audio-player audio {
-    width: 100%;
-  }
-
-  .tracks-list {
-    background: var(--code-inline-bg);
-    padding: 1.5rem;
-    border-radius: 8px;
-  }
-
-  .tracks-list h2 {
-    font-family: 'Londrina Solid', cursive;
-    font-size: 1.8rem;
-    color: var(--text-color);
-    margin-bottom: 1.5rem;
-    text-align: center;
-  }
-
-  .tracks-grid {
+  .sheet-header {
     display: grid;
     gap: 0.75rem;
+    text-align: center;
   }
 
-  .track-item {
+  .sheet-title {
+    display: inline-flex;
+    align-self: center;
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-body));
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    box-shadow: 4px 4px 0 rgba(var(--shadow-soft) / 0.12);
+  }
+
+  .sheet-header h1 {
+    font-size: clamp(2.1rem, 4vw, 3rem);
+    font-weight: 600;
+    color: rgb(var(--color-text-heading));
+    line-height: 1.1;
+  }
+
+  .sheet-header time {
+    font-size: 0.85rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgb(var(--color-text-muted));
+  }
+
+  .sheet-image {
+    position: relative;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    padding: 1.6rem;
+    background: rgb(var(--color-bg-elevated));
+  }
+
+  .sheet-image img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border: 1.5px solid rgb(var(--color-border-ink));
+  }
+
+  .card-corners .corner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-body));
+  }
+
+  .card-corners .corner::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+  }
+
+  .corner--tl { top: -12px; left: -12px; }
+  .corner--tr { top: -12px; right: -12px; }
+  .corner--bl { bottom: -12px; left: -12px; }
+  .corner--br { bottom: -12px; right: -12px; }
+
+  .photo-note {
+    position: absolute;
+    top: -1.2rem;
+    right: 1.4rem;
+    background: rgb(var(--color-primary-blue));
+    border: 1.5px solid rgb(var(--color-border-ink));
+    padding: 0.35rem 0.8rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    box-shadow: 4px 4px 0 rgba(var(--shadow-soft) / 0.16);
+  }
+
+  .sheet-description {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: rgb(var(--color-text-muted));
+  }
+
+  .sheet-player audio {
+    width: 100%;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-elevated));
+    padding: 0.6rem;
+  }
+
+  .section-kicker {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    color: rgb(var(--color-text-muted));
+    margin-bottom: 0.8rem;
+  }
+
+  .sheet-tracklist {
+    border-top: 1px solid rgb(var(--color-border-ink) / 0.2);
+    padding-top: 1.2rem;
+  }
+
+  .track-grid {
     display: grid;
-    grid-template-columns: 40px 1fr;
-    align-items: center;
-    padding: 0.75rem;
-    border-radius: 6px;
-    background: var(--background-color);
-    transition: transform 0.2s ease;
+    gap: 0.9rem;
   }
 
-  .track-item:hover {
-    transform: translateX(5px);
+  .track-row {
+    display: grid;
+    grid-template-columns: 42px 1fr;
+    align-items: center;
+    gap: 1rem;
   }
 
   .track-number {
-    font-family: 'Londrina Solid', cursive;
-    font-size: 1.2rem;
-    color: #ee4a4a;
-    font-weight: bold;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.4em;
+    color: rgb(var(--color-text-heading));
   }
 
   .track-title {
-    color: var(--text-color);
-    font-size: 1rem;
-    line-height: 1.4;
-  }
-
-  :global(.dark) .episode-card {
-    background: var(--code-inline-bg);
-  }
-
-  :global(.dark) .tracks-list {
-    background: var(--background-color);
-  }
-
-  :global(.dark) .track-item {
-    background: var(--code-inline-bg);
+    color: rgb(var(--color-text-muted));
+    font-size: 0.95rem;
   }
 </style>

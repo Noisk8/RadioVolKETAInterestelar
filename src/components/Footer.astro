@@ -1,23 +1,69 @@
 ---
 ---
 
-<footer class="text-center p-4 font-londrina">
-  <p class="text-sm text-gray-600 dark:text-gray-400">
-     Radio Volketa Interestelar -  <span id="currentYear"></span>
-  </p>
+<footer class="footer-container">
+  <div class="footer-line" aria-hidden="true"></div>
+  <div class="footer-content">
+    <span class="footer-brand"> Radio Volketa</span>
+    <p class="footer-copy">✶✶ {new Date().getFullYear()}  KBalah Records ✶✶</p>
+    <div class="footer-links">
+      <a href="https://www.instagram.com" target="_blank" rel="noreferrer" class="footer-link">IG</a>
+      <a href="https://www.tiktok.com" target="_blank" rel="noreferrer" class="footer-link">TT</a>
+      <a href="https://x.com" target="_blank" rel="noreferrer" class="footer-link">X</a>
+    </div>
+  </div>
 </footer>
 
-<script>
-  const yearElement = document.getElementById('currentYear');
-  if (yearElement) {
-    yearElement.textContent = new Date().getFullYear().toString();
-  }
-</script>
-
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Londrina+Solid&display=swap');
-  
-  .font-londrina {
-    font-family: 'Londrina Solid', cursive;
+  .footer-container {
+    position: relative;
+    padding-bottom: 3rem;
+    color: rgb(var(--color-text-muted));
+  }
+
+  .footer-line {
+    position: absolute;
+    inset-x: 0;
+    top: 0;
+    height: 1px;
+    background: rgb(var(--color-border-ink) / 0.4);
+  }
+
+  .footer-content {
+    display: grid;
+    gap: 1rem;
+    padding-top: 2.5rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+  }
+
+  .footer-brand {
+    font-weight: 600;
+    color: rgb(var(--color-text-heading));
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .footer-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 999px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-card));
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    color: rgb(var(--color-text-heading));
+    box-shadow: 4px 4px 0 rgba(var(--shadow-soft) / 0.14);
+  }
+
+  .footer-link:hover {
+    transform: translateY(-1px);
   }
 </style>

@@ -11,13 +11,38 @@ const isOtherPages = typeof href === "string" && href.length > 1
 const isActive = isHome || isOtherPages
 
 ---
-<!-- DO NOT FORMAT. IT ADDS AN EXTRA SPACE ON RENDERED CONTENT. -->
 <a
   href={href}
   class:list={[
     className,
-    { "show": isActive },
-    "unset animated-link",
+    'unset nav-link',
+    { 'is-active': isActive },
   ]}
   {...props}
 ><slot /></a>
+
+<style>
+  .nav-link {
+    position: relative;
+    display: inline-block;
+    padding-bottom: 0.2rem;
+  }
+
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1.5px;
+    background: rgb(var(--color-border-ink));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.2s ease;
+  }
+
+  .nav-link:hover::after,
+  .nav-link.is-active::after {
+    transform: scaleX(1);
+  }
+</style>

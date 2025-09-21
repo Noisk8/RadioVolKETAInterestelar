@@ -27,129 +27,203 @@ function formatDate(date: string | Date): string {
 }
 ---
 
-<PageLayout title="Episodios del Podcast">
+<PageLayout title="Episodios del Podcast" containerClass="max-w-6xl">
   <PageMeta title={`${SITE_TITLE} | ⌐◨-◨ Episodios Nouns-Amigo X  Volketa Interestelar`} slot="meta" />
   <Fragment slot="main">
-    <main>
-      <h1>Episodios Nouns Amigos x Radio Volketa Interestelar ⌐◨-◨ </h1>
-      <div class="episodios-grid">
+    <section class="episodes-view">
+      <header class="episodes-header">
+        <span class="episodes-chip">Archivo Nouns Amigos</span>
+        <h1>Episodios Nouns Amigos x Kabalah Radio ⌐◨-◨</h1>
+        <p>
+          Navega por las colaboraciones extendidas del colectivo, sesiones especiales y transmisiones guardadas para volver a orbitarlas cuando quieras.
+        </p>
+      </header>
+
+      <div class="episodes-grid">
         {sortedEpisodes.map((episode) => {
           const formattedDate = formatDate(episode.frontmatter.date);
-          
+
           return (
-            <article class="episodio-card">
-              <a href={`/nouns-episodios/${episode.slug}`} class="card-link">
-                <div class="imagen-container">
-                  <img src={episode.frontmatter.imageUrl} alt={episode.frontmatter.title} />
+            <article class="episode-card">
+              <a href={`/nouns-episodios/${episode.slug}`} class="episode-link">
+                <div class="episode-image">
+                  <div class="card-corners" aria-hidden="true">
+                    <span class="corner corner--tl"></span>
+                    <span class="corner corner--tr"></span>
+                    <span class="corner corner--bl"></span>
+                    <span class="corner corner--br"></span>
+                  </div>
+                  <img
+                    src={episode.frontmatter.imageUrl}
+                    alt={episode.frontmatter.title}
+                    loading="lazy"
+                  />
+                  <span class="episode-date">{formattedDate}</span>
                 </div>
-                <div class="contenido">
+                <div class="episode-info">
                   <h2>{episode.frontmatter.title}</h2>
-                  <time datetime={episode.frontmatter.date.toISOString()}>{formattedDate}</time>
-                  <p class="descripcion">{episode.frontmatter.description}</p>
-                  <span class="ver-mas">Ver episodio completo →</span>
+                  <p>{episode.frontmatter.description}</p>
+                  <span class="episode-cta">
+                    Ver episodio completo
+                    <span class="fa-solid fa-arrow-right-long" aria-hidden="true"></span>
+                  </span>
                 </div>
               </a>
             </article>
           );
         })}
       </div>
-    </main>
+    </section>
   </Fragment>
 </PageLayout>
 
 <style>
-  h1 {
-    font-family: 'Londrina Solid', cursive;
-    font-weight: 900;
-    font-size: 3rem;
-    color: #ee4a4a;
-    text-align: center;
-    margin-bottom: 2rem;
-    letter-spacing: 0.5px;
-  }
-
-  .episodios-grid {
+  .episodes-view {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
+    gap: 3.5rem;
   }
 
-  .episodio-card {
-    background: var(--background-color);
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
-    border: 1px solid var(--border-color);
+  .episodes-header {
+    display: grid;
+    gap: 1.4rem;
+    text-align: center;
   }
 
-  .episodio-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  .episodes-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.55rem 1.3rem;
+    border-radius: 999px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-card));
+    letter-spacing: 0.38em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    box-shadow: 6px 6px 0 rgba(var(--shadow-soft) / 0.14);
   }
 
-  .card-link {
-    text-decoration: none;
-    color: inherit;
-    display: block;
-  }
-
-  .imagen-container {
-    width: 100%;
-    height: 200px;
-    overflow: hidden;
-  }
-
-  .imagen-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .contenido {
-    padding: 1.5rem;
-  }
-
-  h2 {
-    font-family: 'Londrina Solid', cursive;
-    font-size: 1.8rem;
-    color: var(--text-color);
-    margin: 0 0 0.5rem 0;
-  }
-
-  time {
-    display: block;
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
-  }
-
-  .descripcion {
-    font-size: 1rem;
-    line-height: 1.5;
-    margin-bottom: 1.5rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    color: var(--text-color);
-  }
-
-  .ver-mas {
-    display: inline-block;
-    color: #ee4a4a;
+  .episodes-header h1 {
+    font-size: clamp(2.2rem, 4vw, 3.2rem);
     font-weight: 600;
-    transition: transform 0.2s;
+    color: rgb(var(--color-text-heading));
+    line-height: 1.15;
   }
 
-  .ver-mas:hover {
-    transform: translateX(5px);
+  .episodes-header p {
+    margin: 0 auto;
+    max-width: 58ch;
+    color: rgb(var(--color-text-muted));
+    font-size: 1.02rem;
   }
 
-  :global(.dark) .episodio-card {
-    background: var(--code-inline-bg);
+  .episodes-grid {
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  @media (min-width: 960px) {
+    .episodes-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2.75rem;
+    }
+  }
+
+  .episode-card {
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-card));
+    box-shadow: 10px 10px 0 rgba(var(--shadow-soft) / 0.16);
+    transition: transform 0.2s ease;
+  }
+
+  .episode-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .episode-link {
+    display: grid;
+    gap: 2rem;
+    height: 100%;
+  }
+
+  .episode-image {
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-elevated));
+  }
+
+  .episode-image img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border: 0;
+  }
+
+  .card-corners .corner {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-body));
+  }
+
+  .card-corners .corner::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+  }
+
+  .corner--tl { top: -10px; left: -10px; }
+  .corner--tr { top: -10px; right: -10px; }
+  .corner--bl { bottom: -10px; left: -10px; }
+  .corner--br { bottom: -10px; right: -10px; }
+
+  .episode-date {
+    position: absolute;
+    left: 1.5rem;
+    top: 1.5rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-primary-yellow));
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    font-size: 0.65rem;
+    color: rgb(var(--color-text-heading));
+    box-shadow: 4px 4px 0 rgba(var(--shadow-soft) / 0.16);
+  }
+
+  .episode-info {
+    display: grid;
+    gap: 1.1rem;
+    padding: 0 1.8rem 2.2rem;
+  }
+
+  .episode-info h2 {
+    font-size: 1.45rem;
+    font-weight: 600;
+    color: rgb(var(--color-text-heading));
+  }
+
+  .episode-info p {
+    color: rgb(var(--color-text-muted));
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+
+  .episode-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgb(var(--color-text-heading));
+  }
+
+  .episode-card:hover .episode-cta {
+    text-decoration: underline;
   }
 </style>

@@ -21,11 +21,15 @@ import Analytics from '@vercel/analytics/astro'
 interface Props {
   title?: string;
   description?: string;
+  bodyClass?: string;
+  containerClass?: string;
 }
 
-const { 
+const {
   title = "Radio",
-  description = "Radio "
+  description = "Radio ",
+  bodyClass = "bg-bg-body text-text-body antialiased",
+  containerClass = "max-w-6xl",
 } = Astro.props;
 
 // URL canónica para las metaetiquetas
@@ -59,29 +63,23 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://radiovol
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
     <meta property="twitter:image" content={new URL('/rvi.png', Astro.site || 'https://radiovolketainterestelar.com')} />
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
   </head>
 
-  <body
-    class="max-w-3xl mx-auto min-h-screen px-6 sm:px-8"
-  >
-    <Header />
-    <main id="main">
-      <slot name="main" />
-    </main>
-    <Footer />
-    <style>
-      body {
-        display: grid;
-        grid-template-areas:
-          "header"
-          "main"
-          "footer";
-        grid-template-rows: 5rem minmax(0, 1fr) 5rem;
-        grid-template-columns: minmax(0, 1fr);
-      }
-      main {
-        grid-area: main;
-      }
-    </style>
+  <body class={`min-h-screen transition-colors duration-300 ${bodyClass}`}>
+    <div class="pattern-background"></div>
+    <div class="relative min-h-screen">
+      <div class="absolute inset-x-0 top-0 h-px bg-border-ink/40"></div>
+      <div class="absolute inset-x-0 bottom-0 h-px bg-border-ink/40"></div>
+      <div
+        class={`relative mx-auto flex min-h-screen w-full flex-col gap-20 px-6 py-12 sm:px-12 lg:px-16 ${containerClass}`}
+      >
+        <Header />
+        <main id="main" class="flex-1">
+          <slot name="main" />
+        </main>
+        <Footer />
+      </div>
+    </div>
   </body>
 </html>

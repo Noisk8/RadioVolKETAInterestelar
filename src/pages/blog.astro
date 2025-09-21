@@ -19,61 +19,162 @@ const sortedPosts = posts
   );
 ---
 
-<PageLayout>
+<PageLayout containerClass="max-w-5xl">
   <PageMeta title={`Blog | ${SITE_TITLE}`} slot="meta" />
-  <section slot="main">
-    <ul>
-      {
-        sortedPosts.map((post) => {
-          const formattedDate = new Date(
-            post.frontmatter.date
-          ).toLocaleDateString("en-us", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          });
-          return (
-            <li class="grid grid-cols-[1fr] md:grid-cols-[1fr_auto] mb-3 md:gap-2 items-start">
-              <div class="title">
-                {post.frontmatter.external ? (
-                  <a
-                    href={post.frontmatter.url}
-                    target="_blank"
-                    class="unset
-                        transition-[background-size] duration-300 
-                        bg-gradient-to-r bg-left-bottom bg-no-repeat
-                        bg-[length:0%_55%] hover:bg-[length:100%_55%] dark:bg-[length:0%_2px] hover:dark:bg-[length:100%_2px]
-                        from-primary-blue to-primary-blue dark:from-primary-blue dark:to-primary-blue
-                      "
-                  >
-                    <span>{post.frontmatter.title}</span>
-                    <span>
-                      <i class="ml-1 mr-1 text-[12px] pb-2 fa-solid fa-up-right-from-square" />
-                    </span>
-                  </a>
-                ) : (
-                  <a
-                    href={`/blog/${post.slug}`}
-                    class="unset
-                        transition-[background-size] duration-300 
-                        bg-gradient-to-r bg-left-bottom bg-no-repeat
-                        bg-[length:0%_55%] hover:bg-[length:100%_55%] dark:bg-[length:0%_2px] hover:dark:bg-[length:100%_2px]
-                        from-primary-blue to-primary-blue dark:from-primary-blue dark:to-primary-blue
-                      "
-                  >
-                    {post.frontmatter.title}
-                  </a>
+  <section slot="main" class="blog-view">
+    <header class="blog-header">
+      <span class="blog-chip">Archivo de bitácoras</span>
+      <h1>Historias, contextos y apuntes sonoros</h1>
+      <p>
+        Relatos detrás de las sesiones, procesos curatoriales y anotaciones sobre las comunidades que orbitan Kabalah Radio.
+      </p>
+    </header>
+
+    <ul class="blog-list">
+      {sortedPosts.map((post) => {
+        const formattedDate = new Date(
+          post.frontmatter.date
+        ).toLocaleDateString("es-ES", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+
+        return (
+          <li class="blog-card">
+            <a
+              class="blog-card-link"
+              href={post.frontmatter.external ? post.frontmatter.url : `/blog/${post.slug}`}
+              target={post.frontmatter.external ? "_blank" : undefined}
+              rel={post.frontmatter.external ? "noreferrer" : undefined}
+            >
+              <div class="blog-card-meta">
+                <span class="blog-card-date">{formattedDate}</span>
+                {post.frontmatter.external && (
+                  <span class="blog-card-tag">Externo</span>
                 )}
               </div>
-              <div class="text-text-muted text-sm italic pt-1">
-                <time datetime={post.frontmatter.date.toISOString()}>
-                  {formattedDate}
-                </time>
-              </div>
-            </li>
-          );
-        })
-      }
+              <h2>{post.frontmatter.title}</h2>
+              {post.frontmatter.description && (
+                <p>{post.frontmatter.description}</p>
+              )}
+              <span class="blog-card-cta">
+                Leer historia
+                <span class="fa-solid fa-arrow-right-long" aria-hidden="true"></span>
+              </span>
+            </a>
+          </li>
+        );
+      })}
     </ul>
   </section>
 </PageLayout>
+
+<style>
+  .blog-view {
+    display: grid;
+    gap: 3rem;
+  }
+
+  .blog-header {
+    display: grid;
+    gap: 1.4rem;
+    text-align: center;
+  }
+
+  .blog-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1.2rem;
+    border-radius: 999px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-card));
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    box-shadow: 5px 5px 0 rgba(var(--shadow-soft) / 0.14);
+  }
+
+  .blog-header h1 {
+    font-size: clamp(2.1rem, 4vw, 3rem);
+    font-weight: 600;
+    color: rgb(var(--color-text-heading));
+  }
+
+  .blog-header p {
+    max-width: 60ch;
+    margin: 0 auto;
+    color: rgb(var(--color-text-muted));
+    font-size: 1rem;
+  }
+
+  .blog-list {
+    display: grid;
+    gap: 1.8rem;
+  }
+
+  .blog-card {
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-card));
+    box-shadow: 8px 8px 0 rgba(var(--shadow-soft) / 0.14);
+    transition: transform 0.2s ease;
+  }
+
+  .blog-card:hover {
+    transform: translateY(-3px);
+  }
+
+  .blog-card-link {
+    display: grid;
+    gap: 1rem;
+    padding: 1.8rem;
+  }
+
+  .blog-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgb(var(--color-text-muted));
+  }
+
+  .blog-card-date {
+    padding: 0.35rem 0.8rem;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    border-radius: 999px;
+    background: rgb(var(--color-bg-body));
+  }
+
+  .blog-card-tag {
+    padding: 0.35rem 0.8rem;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    border-radius: 999px;
+    background: rgb(var(--color-primary-blue));
+    color: rgb(var(--color-text-heading));
+  }
+
+  .blog-card h2 {
+    font-size: 1.45rem;
+    font-weight: 600;
+    color: rgb(var(--color-text-heading));
+  }
+
+  .blog-card p {
+    color: rgb(var(--color-text-muted));
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+
+  .blog-card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgb(var(--color-text-heading));
+  }
+</style>

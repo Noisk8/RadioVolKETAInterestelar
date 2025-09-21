@@ -19,47 +19,141 @@ const sortedProjects = projects
   );
 ---
 
-<PageLayout>
+<PageLayout containerClass="max-w-5xl">
   <PageMeta title={`Projects | ${SITE_TITLE}`} slot="meta" />
-  <section slot="main">
-    <ul>
-      {
-        sortedProjects.map((project) => {
-          const formattedDate = new Date(
-            project.frontmatter.date
-          ).toLocaleDateString("en-us", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          });
-          return (
-            <li class="grid grid-cols-[1fr] md:grid-cols-[1fr_auto] mb-3 md:gap-2 items-start">
-              <div class="title">
-                <a
-                  href={project.frontmatter.url}
-                  target="_blank"
-                  class="unset
-                      transition-[background-size] duration-300 
-                      bg-gradient-to-r bg-left-bottom bg-no-repeat
-                      bg-[length:0%_55%] hover:bg-[length:100%_55%] dark:bg-[length:0%_2px] hover:dark:bg-[length:100%_2px]
-                      from-primary-blue to-primary-blue dark:from-primary-blue dark:to-primary-blue
-                    "
-                >
-                  <span>{project.frontmatter.title}</span>
-                  <span>
-                    <i class="ml-1 mr-1 text-[12px] pb-2 fa-solid fa-up-right-from-square" />
-                  </span>
-                </a>
+  <section slot="main" class="projects-view">
+    <header class="projects-header">
+      <span class="projects-chip">Programación extendida</span>
+      <h1>Colaboraciones y residencias sonoras</h1>
+      <p>
+        Documentamos proyectos especiales, residencias, colaboraciones y experimentos multimedia que expanden la señal de Kabalah Radio.
+      </p>
+    </header>
+
+    <ul class="projects-grid">
+      {sortedProjects.map((project) => {
+        const formattedDate = new Date(
+          project.frontmatter.date
+        ).toLocaleDateString("es-ES", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+
+        return (
+          <li class="project-card">
+            <a href={project.frontmatter.url} target="_blank" rel="noreferrer" class="project-link">
+              <div class="project-meta">
+                <span class="project-date">{formattedDate}</span>
+                <span class="project-ext">Ver proyecto</span>
               </div>
-              <div class="text-text-muted text-sm italic pt-1">
-                <time datetime={project.frontmatter.date.toISOString()}>
-                  {formattedDate}
-                </time>
-              </div>
-            </li>
-          );
-        })
-      }
+              <h2>{project.frontmatter.title}</h2>
+              {project.frontmatter.description && (
+                <p>{project.frontmatter.description}</p>
+              )}
+            </a>
+          </li>
+        );
+      })}
     </ul>
   </section>
 </PageLayout>
+
+<style>
+  .projects-view {
+    display: grid;
+    gap: 3rem;
+  }
+
+  .projects-header {
+    display: grid;
+    gap: 1.35rem;
+    text-align: center;
+  }
+
+  .projects-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1.2rem;
+    border-radius: 999px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-card));
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    box-shadow: 5px 5px 0 rgba(var(--shadow-soft) / 0.14);
+  }
+
+  .projects-header h1 {
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 600;
+    color: rgb(var(--color-text-heading));
+  }
+
+  .projects-header p {
+    max-width: 60ch;
+    margin: 0 auto;
+    color: rgb(var(--color-text-muted));
+    font-size: 1rem;
+  }
+
+  .projects-grid {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .project-card {
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-card));
+    box-shadow: 8px 8px 0 rgba(var(--shadow-soft) / 0.14);
+    transition: transform 0.2s ease;
+  }
+
+  .project-card:hover {
+    transform: translateY(-3px);
+  }
+
+  .project-link {
+    display: grid;
+    gap: 0.9rem;
+    padding: 1.75rem;
+  }
+
+  .project-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    color: rgb(var(--color-text-muted));
+  }
+
+  .project-date {
+    padding: 0.35rem 0.8rem;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    border-radius: 999px;
+    background: rgb(var(--color-bg-body));
+  }
+
+  .project-ext {
+    padding: 0.35rem 0.8rem;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    border-radius: 999px;
+    background: rgb(var(--color-primary-yellow));
+    color: rgb(var(--color-text-heading));
+  }
+
+  .project-card h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: rgb(var(--color-text-heading));
+  }
+
+  .project-card p {
+    color: rgb(var(--color-text-muted));
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+</style>
