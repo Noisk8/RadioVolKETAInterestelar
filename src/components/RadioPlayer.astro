@@ -394,6 +394,10 @@ try {
   .radio-shell {
     border: none;
     width: 100%;
+    --player-accent: #b4ff00;
+    --player-accent-light: #d8ff66;
+    --player-accent-ink: #1a2500;
+    --player-accent-shadow: rgba(180, 255, 0, 0.35);
   }
 
   .radio-content {
@@ -495,7 +499,7 @@ try {
     width: 5px;
     height: 22px;
     border-radius: 2px;
-    background: linear-gradient(180deg, rgba(var(--color-primary-blue) / 0.9), rgba(var(--color-primary-pink) / 0.85));
+    background: linear-gradient(180deg, var(--player-accent-light), var(--player-accent));
     animation: eqPulse 1.6s ease-in-out infinite;
     transform-origin: center bottom;
   }
@@ -570,7 +574,7 @@ try {
     inset: 0;
     transform-origin: left center;
     transform: scaleX(0);
-    background: linear-gradient(90deg, rgba(var(--color-primary-blue) / 0.85), rgba(var(--color-primary-pink) / 0.9));
+    background: linear-gradient(90deg, var(--player-accent-light), var(--player-accent));
     transition: transform 0.18s ease-out;
     pointer-events: none;
   }
@@ -659,6 +663,7 @@ try {
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
     width: max(170px, 48%);
+    color: rgb(var(--color-text-heading));
   }
 
   .player-control:hover {
@@ -705,13 +710,13 @@ try {
     font-size: 0.75rem;
     letter-spacing: 0.26em;
     text-transform: uppercase;
-    color: rgb(var(--color-text-heading));
+    color: currentColor;
   }
 
   .player-control.is-live {
-    background: rgb(64 181 123 / 0.92);
-    box-shadow: 6px 6px 0 rgba(64, 181, 123, 0.35);
-    color: rgb(8 42 23 / 1);
+    background: var(--player-accent-light);
+    box-shadow: 6px 6px 0 var(--player-accent-shadow);
+    color: var(--player-accent-ink);
   }
 
   .player-control.is-live .player-symbol {
@@ -719,16 +724,17 @@ try {
   }
 
   .player-control.is-live .player-icon {
-    border-color: transparent transparent transparent rgb(8, 42, 23);
+    border-color: transparent transparent transparent var(--player-accent-ink);
   }
 
   .player-control.is-live.is-playing .player-icon {
-    background: rgb(8, 42, 23);
+    background: var(--player-accent-ink);
   }
 
   .player-control.is-offline {
-    background: rgb(var(--color-primary-pink));
-    box-shadow: 6px 6px 0 rgba(var(--shadow-soft) / 0.2);
+    background: var(--player-accent);
+    box-shadow: 6px 6px 0 var(--player-accent-shadow);
+    color: var(--player-accent-ink);
   }
 
   .player-control.is-offline .player-symbol {

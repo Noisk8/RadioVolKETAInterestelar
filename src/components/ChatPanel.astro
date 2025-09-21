@@ -1,5 +1,5 @@
 ---
-const channel = "kblah";
+const channel = "kbalah";
 ---
 
 <aside class="chat-shell">
@@ -10,7 +10,7 @@ const channel = "kblah";
       <span class="corner corner--bl"></span>
       <span class="corner corner--br"></span>
     </div>
-    <span class="chat-tag">tlk.io</span>
+
     <div class="chat-body">
       <div id="chat-placeholder" class="chat-placeholder">
         <span class="chat-dot"></span>
@@ -48,7 +48,6 @@ const channel = "kblah";
 <style>
   .chat-shell {
     position: relative;
-    height: 100%;
     width: 100%;
   }
 
@@ -73,13 +72,13 @@ const channel = "kblah";
 
   .chat-frame {
     position: relative;
-    height: 100%;
     display: grid;
     grid-template-rows: auto minmax(0, 1fr);
     gap: 1rem;
     border: 1.5px solid rgb(var(--color-border-ink));
     background: rgb(var(--color-bg-card));
     padding: clamp(0.95rem, 2vw, 1.4rem);
+    box-shadow: 12px 12px 0 rgba(var(--shadow-soft) / 0.16);
   }
 
   .chat-corners {
@@ -142,8 +141,7 @@ const channel = "kblah";
     position: relative;
     border: 1.5px solid rgb(var(--color-border-ink));
     background: rgb(var(--color-bg-elevated));
-    min-height: 260px;
-    height: 100%;
+    min-height: clamp(360px, 55vh, 520px);
   }
 
   .chat-placeholder {
