@@ -1,9 +1,15 @@
 ---
-const channel = "kabalah";
+const channel = "kblah";
 ---
 
 <aside class="chat-shell">
   <div class="chat-frame">
+    <div class="chat-corners" aria-hidden="true">
+      <span class="corner corner--tl"></span>
+      <span class="corner corner--tr"></span>
+      <span class="corner corner--bl"></span>
+      <span class="corner corner--br"></span>
+    </div>
     <span class="chat-tag">tlk.io</span>
     <div class="chat-body">
       <div id="chat-placeholder" class="chat-placeholder">
@@ -66,6 +72,7 @@ const channel = "kabalah";
   }
 
   .chat-frame {
+    position: relative;
     height: 100%;
     display: grid;
     grid-template-rows: auto minmax(0, 1fr);
@@ -73,6 +80,47 @@ const channel = "kabalah";
     border: 1.5px solid rgb(var(--color-border-ink));
     background: rgb(var(--color-bg-card));
     padding: clamp(0.95rem, 2vw, 1.4rem);
+  }
+
+  .chat-corners {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .chat-corners .corner {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-body));
+  }
+
+  .chat-corners .corner::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+  }
+
+  .corner--tl {
+    top: -9px;
+    left: -9px;
+  }
+
+  .corner--tr {
+    top: -9px;
+    right: -9px;
+  }
+
+  .corner--bl {
+    bottom: -9px;
+    left: -9px;
+  }
+
+  .corner--br {
+    bottom: -9px;
+    right: -9px;
   }
 
   .chat-tag {

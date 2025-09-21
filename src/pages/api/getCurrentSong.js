@@ -54,7 +54,7 @@ export async function get() {
 
   return new Response(
     JSON.stringify({
-      title: "Transmitiendo en vivo - Kabalah Radio",
+      title: "Transmitiendo en vivo - kblah Radio",
     }),
     {
       headers: { 'Content-Type': 'application/json' },

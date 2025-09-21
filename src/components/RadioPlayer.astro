@@ -8,7 +8,7 @@ interface StreamInfo {
 }
 
 let current: StreamInfo = {
-  title: "KBalah",
+  title: "",
   artist: "Transmitiendo en vivo",
 };
 
@@ -34,6 +34,12 @@ try {
 
 <section class="radio-shell">
   <div class="radio-content">
+    <div class="radio-corners" aria-hidden="true">
+      <span class="corner corner--tl"></span>
+      <span class="corner corner--tr"></span>
+      <span class="corner corner--bl"></span>
+      <span class="corner corner--br"></span>
+    </div>
     <header class="radio-headline">
       <div class="eq-badge" aria-hidden="true">
         <span class="eq-bar" style="animation-delay: 0ms"></span>
@@ -399,6 +405,47 @@ try {
     display: grid;
     gap: clamp(1.8rem, 3vw, 2.4rem);
     justify-items: center;
+  }
+
+  .radio-corners {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .radio-corners .corner {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-body));
+  }
+
+  .radio-corners .corner::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+  }
+
+  .corner--tl {
+    top: -9px;
+    left: -9px;
+  }
+
+  .corner--tr {
+    top: -9px;
+    right: -9px;
+  }
+
+  .corner--bl {
+    bottom: -9px;
+    left: -9px;
+  }
+
+  .corner--br {
+    bottom: -9px;
+    right: -9px;
   }
 
   .radio-headline {
