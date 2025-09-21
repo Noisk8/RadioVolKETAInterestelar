@@ -43,17 +43,13 @@ try {
         <span class="eq-bar" style="animation-delay: 480ms"></span>
       </div>
       <div class="radio-titles">
-        <p class="headline-kicker"></p>
+  
         <h2 id="song-title">{current.title}</h2>
         <p id="artist-name">{current.artist}</p>
       </div>
     </header>
 
-    <div class="player-surface">
-      <div id="player-status" class="player-status hidden">
-        <span class="status-dot"></span>
-        Conectando señal
-      </div>
+
       <audio
         id="radio-player"
         class="w-full bg-transparent px-6 pb-6 pt-12"
@@ -61,7 +57,7 @@ try {
         preload="none"
         crossorigin="anonymous"
       ></audio>
-    </div>
+    
 
     <div class="player-foot">
       <div class="timeline-row">
@@ -113,15 +109,6 @@ try {
           </div>
         </div>
 
-        <a
-          href="https://srv788502.hstgr.cloud:8001/radiovolketainterestelar.ogg"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="external-link"
-        >
-          Abrir en nueva ventana
-          <span class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></span>
-        </a>
       </div>
     </div>
   </div>
@@ -134,13 +121,13 @@ try {
     const titleEl = document.getElementById("song-title");
     const artistEl = document.getElementById("artist-name");
     const toggleButton = document.getElementById("player-toggle");
-    const statusBanner = document.getElementById("player-status");
     const progressInput = document.getElementById("player-progress");
     const progressFill = document.getElementById("player-progress-fill");
     const elapsedLabel = document.getElementById("player-elapsed");
     const remainingLabel = document.getElementById("player-remaining");
     const volumeInput = document.getElementById("player-volume");
     const labelSpan = toggleButton?.querySelector(".player-label");
+    const panelContainer = document.querySelector(".radio-content");
 
     const formatTime = (secs) => {
       if (!Number.isFinite(secs) || secs < 0) return "";
@@ -171,21 +158,12 @@ try {
       }
     };
 
-    const setLoading = (active) => {
-      if (!statusBanner) return;
-      if (active) {
-        statusBanner.textContent = "Conectando señal";
-        statusBanner.classList.remove("status-error");
-      }
-      statusBanner.classList.toggle("hidden", !active);
-      statusBanner.classList.toggle("is-visible", active);
-    };
-
     const setLiveState = (isLive) => {
       if (!toggleButton) return;
       toggleButton.dataset.live = isLive ? "on" : "off";
       toggleButton.classList.toggle("is-live", isLive);
       toggleButton.classList.toggle("is-offline", !isLive);
+      panelContainer?.classList.toggle("is-live", isLive);
     };
 
     const updateDurationState = () => {
@@ -270,29 +248,21 @@ try {
       updateProgressUI();
     });
 
-    player?.addEventListener("waiting", () => setLoading(true));
+    player?.addEventListener("waiting", () => {});
     player?.addEventListener("loadstart", () => {
-      setLoading(true);
       updateDurationState();
     });
     player?.addEventListener("playing", () => {
-      setLoading(false);
       setLiveState(true);
       updateDurationState();
       updateProgressUI();
     });
     player?.addEventListener("canplay", () => {
-      setLoading(false);
       updateDurationState();
     });
 
     player?.addEventListener("error", () => {
-      setLoading(false);
       setLiveState(false);
-      if (!statusBanner) return;
-      statusBanner.textContent = "No se pudo conectar, intenta de nuevo";
-      statusBanner.classList.remove("hidden");
-      statusBanner.classList.add("is-visible", "status-error");
       remainingLabel?.classList.remove("live-active");
       if (remainingLabel && !isLiveStream) {
         remainingLabel.textContent = formatTime(player?.duration || 0);
@@ -384,13 +354,15 @@ try {
     padding: clamp(1.9rem, 3.2vw, 2.8rem);
     display: grid;
     gap: clamp(1.8rem, 3vw, 2.4rem);
+    justify-items: center;
   }
 
   .radio-headline {
     display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
+    flex-direction: column;
+    gap: 1.25rem;
     align-items: center;
+    text-align: center;
   }
 
   .headline-kicker {
@@ -403,6 +375,7 @@ try {
   .radio-titles {
     display: grid;
     gap: 0.35rem;
+    justify-items: center;
   }
 
   .radio-titles h2 {
@@ -456,67 +429,23 @@ try {
     position: relative;
     border: 1.5px solid rgb(var(--color-border-ink));
     background: rgb(var(--color-bg-elevated));
-    padding: 2.4rem 2rem 2rem;
+    padding: clamp(2rem, 4vw, 2.4rem) clamp(1.4rem, 4vw, 2rem) clamp(1.6rem, 4vw, 2rem);
     box-shadow: inset 0 0 0 1px rgba(var(--color-border-ink) / 0.08);
+    width: min(100%, 520px);
   }
 
-  .player-status {
+  .player-surface audio {
     position: absolute;
-    left: 2rem;
-    right: 2rem;
-    top: 1.2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.6rem;
-    padding: 0.45rem 0.9rem;
-    border: 1.5px solid rgb(var(--color-border-ink));
-    border-radius: 999px;
-    background: rgb(var(--color-bg-card));
-    font-size: 0.68rem;
-    text-transform: uppercase;
-    letter-spacing: 0.4em;
-    color: rgb(var(--color-text-heading));
-    box-shadow: 4px 4px 0 rgba(var(--shadow-soft) / 0.12);
-  }
-
-  .player-status.status-error {
-    background: rgb(234 84 85 / 0.9);
-    color: rgb(255 247 235 / 1);
-  }
-
-  .player-status.hidden {
-    display: none;
-  }
-
-  .player-status.is-visible {
-    display: flex;
-  }
-
-  .status-dot {
-    display: inline-block;
-    width: 0.55rem;
-    height: 0.55rem;
-    border-radius: 999px;
-    background: rgb(var(--color-primary-yellow));
-    box-shadow: 0 0 0 4px rgba(var(--color-primary-yellow) / 0.25);
-    animation: pulse 1.8s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% {
-      transform: scale(0.9);
-      opacity: 0.75;
-    }
-    50% {
-      transform: scale(1.1);
-      opacity: 1;
-    }
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
   }
 
   .player-foot {
     display: grid;
     gap: clamp(1.4rem, 2.5vw, 2rem);
+    width: min(100%, 520px);
   }
 
   .timeline-row {
@@ -529,13 +458,18 @@ try {
   .timeline-track {
     position: relative;
     width: 100%;
+    height: 0.7rem;
+    border-radius: 999px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-body));
+    box-shadow: 3px 3px 0 rgba(var(--shadow-soft) / 0.12);
   }
 
   .progress-track {
     position: absolute;
-    inset: 0;
+    inset: 3px;
     border-radius: 999px;
-    background: rgba(var(--color-border-ink) / 0.12);
+    background: rgba(var(--color-border-ink) / 0.15);
     overflow: hidden;
     pointer-events: none;
   }
@@ -545,18 +479,20 @@ try {
     inset: 0;
     transform-origin: left center;
     transform: scaleX(0);
-    background: linear-gradient(90deg, rgba(var(--color-primary-blue) / 0.75), rgba(var(--color-primary-yellow) / 0.9));
-    transition: transform 0.15s ease-out;
+    background: linear-gradient(90deg, rgba(var(--color-primary-blue) / 0.85), rgba(var(--color-primary-pink) / 0.9));
+    transition: transform 0.18s ease-out;
     pointer-events: none;
   }
 
   .progress-range {
-    position: relative;
-    width: 100%;
+    position: absolute;
     appearance: none;
+    width: 100%;
+    height: 100%;
+    inset: 0;
     background: transparent;
-    height: 1.5rem;
     cursor: pointer;
+    opacity: 0;
   }
 
   .progress-range:focus-visible {
@@ -565,36 +501,14 @@ try {
 
   .progress-range.is-disabled {
     cursor: not-allowed;
-    opacity: 0.5;
   }
 
-  .progress-range::-webkit-slider-thumb {
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 999px;
-    background: rgb(var(--color-bg-card));
-    border: 1.5px solid rgb(var(--color-border-ink));
-    box-shadow: 0 0 0 4px rgba(var(--color-border-ink) / 0.08);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-  }
-
+  .progress-range::-webkit-slider-thumb,
   .progress-range::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    border-radius: 999px;
-    background: rgb(var(--color-bg-card));
-    border: 1.5px solid rgb(var(--color-border-ink));
-    box-shadow: 0 0 0 4px rgba(var(--color-border-ink) / 0.08);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-  }
-
-  .progress-range:hover::-webkit-slider-thumb,
-  .progress-range:focus-visible::-webkit-slider-thumb,
-  .progress-range:hover::-moz-range-thumb,
-  .progress-range:focus-visible::-moz-range-thumb {
-    transform: scale(1.1);
-    box-shadow: 0 0 0 6px rgba(var(--color-border-ink) / 0.12);
+    appearance: none;
+    width: 0;
+    height: 0;
+    border: none;
   }
 
   .time-chip {
@@ -633,6 +547,7 @@ try {
     flex-wrap: wrap;
     gap: 1.2rem;
     align-items: center;
+    justify-content: center;
   }
 
   .player-control {
@@ -646,6 +561,7 @@ try {
     box-shadow: 6px 6px 0 rgba(var(--shadow-soft) / 0.16);
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    width: max(170px, 48%);
   }
 
   .player-control:hover {
@@ -731,6 +647,7 @@ try {
     display: grid;
     gap: 0.4rem;
     min-width: 160px;
+    width: max(200px, 48%);
   }
 
   .volume-kicker {
@@ -798,6 +715,56 @@ try {
 
   .external-link:hover {
     transform: translateY(-2px);
+  }
+
+  @media (max-width: 640px) {
+    .radio-content {
+      padding: 1.6rem 1.35rem;
+      gap: 1.4rem;
+      justify-items: center;
+    }
+
+    .radio-headline {
+      gap: 0.75rem;
+    }
+
+    .player-surface {
+      padding: 1.7rem 1.2rem 1.4rem;
+      width: 100%;
+    }
+
+    .timeline-row {
+      grid-template-columns: 1fr;
+      gap: 0.35rem;
+    }
+
+    .timeline-row .time-chip {
+      justify-self: center;
+    }
+
+    .action-row {
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .player-control,
+    .external-link {
+      width: min(100%, 240px);
+      justify-content: center;
+    }
+
+    .volume-block {
+      width: min(100%, 240px);
+    }
+
+    .volume-control {
+      justify-content: space-between;
+    }
+
+    .live-indicator {
+      align-self: center;
+    }
   }
 </style>
 </client:load>
