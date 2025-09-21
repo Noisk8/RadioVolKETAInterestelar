@@ -76,7 +76,7 @@ try {
             aria-label="Avance de la pista"
           />
         </div>
-        <span id="player-remaining" class="time-chip live-indicator"></span>
+        <span id="player-remaining" class="time-chip live-indicator">Fuera de aire</span>
       </div>
 
       <div class="action-row">
@@ -128,6 +128,8 @@ try {
     const volumeInput = document.getElementById("player-volume");
     const labelSpan = toggleButton?.querySelector(".player-label");
     const panelContainer = document.querySelector(".radio-content");
+    const LIVE_INDICATOR_TEXT = "EN VIVO";
+    const OFFLINE_INDICATOR_TEXT = "Fuera de aire";
 
     const formatTime = (secs) => {
       if (!Number.isFinite(secs) || secs < 0) return "";
@@ -145,7 +147,7 @@ try {
       return `${minutes}:${seconds}`;
     };
 
-    let isLiveStream = true;
+    let isLiveStream = false;
 
     const togglePlayer = () => {
       if (!player) return;
@@ -169,18 +171,35 @@ try {
     const updateDurationState = () => {
       if (!player) return;
       const { duration } = player;
-      const live = !Number.isFinite(duration) || duration <= 0;
+      const durationIsFinite = Number.isFinite(duration) && duration > 0;
+      const durationIsUnknown = Number.isNaN(duration);
+      const live = !durationIsUnknown && !Number.isFinite(duration);
+      const offline = durationIsUnknown || duration <= 0;
+
       isLiveStream = live;
+
       if (progressInput) {
-        progressInput.disabled = live;
-        progressInput.classList.toggle("is-disabled", live);
-        if (!live) {
+        const disableProgress = live || offline || !durationIsFinite;
+        progressInput.disabled = disableProgress;
+        progressInput.classList.toggle("is-disabled", disableProgress);
+        if (!disableProgress && durationIsFinite) {
           progressInput.max = Math.floor(duration).toString();
         }
       }
+
       if (remainingLabel) {
-        remainingLabel.textContent = live ? "EN VIVO" : formatTime(duration);
+        if (live) {
+          remainingLabel.textContent = LIVE_INDICATOR_TEXT;
+        } else if (offline) {
+          remainingLabel.textContent = OFFLINE_INDICATOR_TEXT;
+        } else {
+          remainingLabel.textContent = formatTime(duration);
+        }
         remainingLabel.classList.toggle("live-active", live);
+        remainingLabel.classList.toggle("live-offline", !live && offline);
+        if (!live && !offline) {
+          remainingLabel.classList.remove("live-offline");
+        }
       }
     };
 
@@ -194,8 +213,9 @@ try {
 
       if (isLiveStream) {
         if (remainingLabel) {
-          remainingLabel.textContent = "EN VIVO";
+          remainingLabel.textContent = LIVE_INDICATOR_TEXT;
           remainingLabel.classList.add("live-active");
+          remainingLabel.classList.remove("live-offline");
         }
         if (progressFill) {
           const fraction = (player.currentTime % 8) / 8;
@@ -204,7 +224,22 @@ try {
         return;
       }
 
-      const duration = player.duration || 1;
+      const duration = Number.isFinite(player.duration) && player.duration > 0 ? player.duration : null;
+      if (duration === null) {
+        if (progressFill) {
+          progressFill.style.transform = "scaleX(0)";
+        }
+        if (progressInput && !fromSlider) {
+          progressInput.value = "0";
+        }
+        if (remainingLabel) {
+          remainingLabel.textContent = OFFLINE_INDICATOR_TEXT;
+          remainingLabel.classList.remove("live-active");
+          remainingLabel.classList.add("live-offline");
+        }
+        return;
+      }
+
       const percent = Math.min(current / duration, 1);
       if (progressFill) {
         progressFill.style.transform = `scaleX(${percent})`;
@@ -216,6 +251,7 @@ try {
         const remaining = Math.max(duration - current, 0);
         remainingLabel.textContent = formatTime(remaining);
         remainingLabel.classList.remove("live-active");
+        remainingLabel.classList.remove("live-offline");
       }
     };
 
@@ -263,9 +299,17 @@ try {
 
     player?.addEventListener("error", () => {
       setLiveState(false);
-      remainingLabel?.classList.remove("live-active");
-      if (remainingLabel && !isLiveStream) {
-        remainingLabel.textContent = formatTime(player?.duration || 0);
+      isLiveStream = false;
+      if (progressFill) {
+        progressFill.style.transform = "scaleX(0)";
+      }
+      if (progressInput) {
+        progressInput.value = "0";
+      }
+      if (remainingLabel) {
+        remainingLabel.textContent = OFFLINE_INDICATOR_TEXT;
+        remainingLabel.classList.remove("live-active");
+        remainingLabel.classList.add("live-offline");
       }
     });
 
@@ -540,6 +584,12 @@ try {
     height: 0.5rem;
     border-radius: 999px;
     background: currentColor;
+  }
+
+  .live-indicator.live-offline {
+    background: rgba(var(--color-border-ink) / 0.12);
+    color: rgb(var(--color-text-muted));
+    box-shadow: none;
   }
 
   .action-row {
