@@ -48,7 +48,7 @@ const {
       <section class="episode-tracklist">
         <p class="tracklist-title">Tracklist</p>
         <ol>
-          {canciones.map((cancion, index) => (
+          {canciones.map((cancion: Cancion, index: number) => (
             <li>
               <span class="track-number">{(index + 1).toString().padStart(2, "0")}</span>
               <span class="track-title">{cancion.titulo}</span>

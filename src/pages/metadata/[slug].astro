@@ -1,0 +1,174 @@
+---
+// Importaciones diferidas para evitar problemas de resolución en dev
+// Título fijo para evitar problemas de importación
+const SITE_TITLE = "Radio VolKETA Interestelar";
+import PageLayout from "../../layouts/PageLayout.astro";
+import PageMeta from "../../components/PageMeta.astro";
+
+// Definición de interfaces
+interface Track {
+  title: string;
+  artist?: string;
+  duration?: string;
+}
+
+interface MetadataProps {
+  metadata: {
+    frontmatter: {
+      title: string;
+      description: string;
+      audioUrl?: string;
+      imageUrl?: string;
+      tracks?: Track[];
+      date: string;
+      author?: string;
+      tags?: string[];
+    };
+    slug: string;
+  };
+}
+
+export async function getStaticPaths() {
+  const { readAll } = await import("../../lib/markdoc/read.ts");
+  const { metadata: metadataSchema } = await import("../../lib/markdoc/metadata.schema.ts");
+  const allMetadata = await readAll({
+    directory: "metadata",
+    frontmatterSchema: metadataSchema,
+  });
+
+  return allMetadata.map((item) => ({
+    params: { slug: item.slug },
+    props: { metadata: item },
+  }));
+}
+
+// Obtener los datos de los props
+const { metadata } = Astro.props as any;
+if (!metadata) {
+  throw new Error("No se recibieron metadatos para esta página");
+}
+
+// Validar y obtener los datos necesarios con valores por defecto
+const title = metadata?.frontmatter?.title || 'Sin título';
+const description = metadata?.frontmatter?.description || 'Sin descripción';
+const audioUrl = metadata?.frontmatter?.audioUrl || '';
+const tracks: Track[] = metadata?.frontmatter?.tracks || [];
+const date = metadata?.frontmatter?.date ? new Date(metadata.frontmatter.date) : new Date();
+const author = metadata?.frontmatter?.author || 'Anónimo';
+const tags = Array.isArray(metadata?.frontmatter?.tags) ? metadata.frontmatter.tags : [];
+
+// Formatear la fecha
+const formattedDate = date.toLocaleDateString("es-ES", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+
+// Obtener la URL de la imagen
+let imageUrl = `/images/metadata/${metadata?.slug || 'default'}.jpeg`;
+if (metadata?.frontmatter?.imageUrl) {
+  imageUrl = metadata.frontmatter.imageUrl.startsWith('http')
+    ? metadata.frontmatter.imageUrl
+    : `/${metadata.frontmatter.imageUrl.replace(/\.?\//, '')}`;
+}
+ 
+---
+
+<PageLayout containerClass="max-w-5xl">
+  <PageMeta title={`${title} | ${SITE_TITLE}`} description={description} slot="meta" />
+  <main slot="main" class="episode-view">
+    <a href="/metadata" class="back-chip">
+      <span class="fa-solid fa-arrow-left-long" aria-hidden="true"></span>
+      Volver
+    </a>
+
+    <article class="episode-sheet">
+      <header class="sheet-header">
+        <span class="sheet-title">Sesión exclusiva</span>
+        <h1>{title}</h1>
+        <time datetime={new Date(date).toISOString()}>{formattedDate}</time>
+      </header>
+
+      <div class="sheet-image">
+        <div class="card-corners" aria-hidden="true">
+          <span class="corner corner--tl"></span>
+          <span class="corner corner--tr"></span>
+          <span class="corner corner--bl"></span>
+          <span class="corner corner--br"></span>
+        </div>
+        <img src={imageUrl} alt={title} loading="lazy" />
+      </div>
+
+      <p class="sheet-description">{description}</p>
+
+      {audioUrl && (
+        <section class="sheet-player">
+          <p class="section-kicker">Escucha completa</p>
+          <audio controls preload="metadata">
+            <source src={audioUrl} type="audio/mpeg" />
+            Tu navegador no soporta el elemento de audio.
+          </audio>
+        </section>
+      )}
+
+      {tracks && tracks.length > 0 && (
+        <section class="sheet-tracklist">
+          <p class="section-kicker">Tracklist</p>
+          <div class="track-grid">
+            {tracks.map((track: Track, index: number) => (
+              <div class="track-row">
+                <span class="track-number">{String(index + 1).padStart(2, '0')}</span>
+                <span class="track-title">{track.title}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+    </article>
+  </main>
+</PageLayout>
+
+<style>
+  .episode-view { display: grid; gap: 2rem; }
+
+  .back-chip {
+    display: inline-flex; align-items: center; gap: 0.7rem;
+    padding: 0.6rem 1.3rem; border-radius: 999px;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-card));
+    letter-spacing: 0.3em; text-transform: uppercase; font-size: 0.75rem;
+    box-shadow: 5px 5px 0 rgba(var(--shadow-soft) / 0.12);
+    width: fit-content;
+  }
+
+  .episode-sheet {
+    display: grid; gap: 2.5rem;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    background: rgb(var(--color-bg-card));
+    box-shadow: 12px 12px 0 rgba(var(--shadow-soft) / 0.16);
+    padding: clamp(1.75rem, 3vw, 2.75rem);
+  }
+
+  .sheet-header { display: grid; gap: 0.75rem; text-align: center; }
+  .sheet-title { display: inline-flex; align-self: center; padding: 0.4rem 1rem; border-radius: 999px; border: 1.5px solid rgb(var(--color-border-ink)); background: rgb(var(--color-bg-body)); letter-spacing: 0.3em; text-transform: uppercase; font-size: 0.7rem; box-shadow: 4px 4px 0 rgba(var(--shadow-soft) / 0.12); }
+  .sheet-header h1 { font-size: clamp(2.1rem, 4vw, 3rem); font-weight: 600; color: rgb(var(--color-text-heading)); line-height: 1.1; }
+  .sheet-header time { font-size: 0.85rem; letter-spacing: 0.3em; text-transform: uppercase; color: rgb(var(--color-text-muted)); }
+
+  .sheet-image { position: relative; border: 1.5px solid rgb(var(--color-border-ink)); padding: 1.6rem; background: rgb(var(--color-bg-elevated)); }
+  .sheet-image img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border: 1.5px solid rgb(var(--color-border-ink)); }
+
+  .card-corners .corner { position: absolute; width: 20px; height: 20px; border: 1.5px solid rgb(var(--color-border-ink)); background: rgb(var(--color-bg-body)); }
+  .card-corners .corner::after { content: ""; position: absolute; inset: 4px; border: 1.5px solid rgb(var(--color-border-ink)); }
+  .corner--tl { top: -12px; left: -12px; } .corner--tr { top: -12px; right: -12px; } .corner--bl { bottom: -12px; left: -12px; } .corner--br { bottom: -12px; right: -12px; }
+  /* removed photo-note badge as requested */
+
+  .sheet-description { font-size: 1.05rem; line-height: 1.7; color: rgb(var(--color-text-muted)); }
+  .sheet-player audio { width: 100%; border: 1.5px solid rgb(var(--color-border-ink)); background: rgb(var(--color-bg-elevated)); padding: 0.6rem; }
+  .section-kicker { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.3em; color: rgb(var(--color-text-muted)); margin-bottom: 0.8rem; }
+
+  .sheet-tracklist { border-top: 1px solid rgb(var(--color-border-ink) / 0.2); padding-top: 1.2rem; }
+  .track-grid { display: grid; gap: 0.9rem; }
+  .track-row { display: grid; grid-template-columns: 42px 1fr; align-items: center; gap: 1rem; }
+  .track-number { font-size: 0.85rem; font-weight: 600; letter-spacing: 0.4em; color: rgb(var(--color-text-heading)); }
+  .track-title { color: rgb(var(--color-text-muted)); font-size: 0.95rem; }
+</style>

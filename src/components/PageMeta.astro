@@ -1,11 +1,5 @@
 ---
-import { getPageMeta } from "../lib/seo";
-import {
-  SITE_TITLE,
-  SITE_DESCRIPTION,
-  SITE_URL,
-  TWITTER_HANDLE,
-} from "../config";
+import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL } from "../config";
 
 export interface Props {
   title?: string;
@@ -14,17 +8,35 @@ export interface Props {
 
 const { title, description } = Astro.props;
 
-const { meta, og, twitter } = getPageMeta({
-  title: title || SITE_TITLE,
-  description: description || SITE_DESCRIPTION,
-  baseUrl: SITE_URL,
-  ogImageAbsoluteUrl: `${SITE_URL}/images/og.png`,
-  ogImageAltText: "My fancy website",
-  ogImageWidth: 1200,
-  ogImageHeight: 630,
-  siteOwnerTwitterHandle: TWITTER_HANDLE,
-  contentAuthorTwitterHandle: TWITTER_HANDLE,
-});
+// Ensure we have valid values for title and description
+const pageTitle = title || SITE_TITLE || 'Página sin título';
+const pageDescription = description || SITE_DESCRIPTION || 'Sin descripción disponible';
+
+// Simple meta tags without the getPageMeta function
+const meta = {
+  title: pageTitle,
+  description: pageDescription,
+  canonicalUrl: SITE_URL + Astro.url.pathname
+};
+
+const og = {
+  title: pageTitle,
+  description: pageDescription,
+  type: 'website',
+  url: SITE_URL + Astro.url.pathname,
+  image: new URL('/images/og.png', SITE_URL).toString(),
+  imageAlt: pageTitle,
+  imageWidth: '1200',
+  imageHeight: '630'
+};
+
+const twitter = {
+  title: pageTitle,
+  description: pageDescription,
+  card: 'summary_large_image',
+  image: new URL('/images/og.png', SITE_URL).toString(),
+  imageAlt: pageTitle
+};
 ---
 
 <!-- Primary Meta Tags -->
@@ -43,23 +55,10 @@ const { meta, og, twitter } = getPageMeta({
 {og.imageHeight && <meta property="og:image:height" content={og.imageHeight} />}
 
 <!-- Twitter -->
-{twitter.title && <meta property="twitter:title" content={twitter.title} />}
-{
-  twitter.description && (
-    <meta property="twitter:description" content={twitter.description} />
-  )
-}
-{twitter.site && <meta property="twitter:site" content={twitter.site} />}
-{
-  twitter.creator && (
-    <meta property="twitter:creator" content={twitter.creator} />
-  )
-}
-<meta property="twitter:card" content="summary_large_image" />
-{twitter.image && <meta property="twitter:image" content={twitter.image} />}
-{
-  twitter.imageAlt && (
-    <meta property="twitter:image:alt" content={twitter.imageAlt} />
-  )
-}
-<!-- {twitter.url && <meta property="twitter:url" content={twitter.url} />} -->
+      <meta name="twitter:card" content={twitter.card} />
+      <meta name="twitter:title" content={twitter.title} />
+      {twitter.description && (
+        <meta name="twitter:description" content={twitter.description} />
+      )}
+      <meta name="twitter:image" content={twitter.image} />
+      <meta name="twitter:image:alt" content={twitter.imageAlt} />

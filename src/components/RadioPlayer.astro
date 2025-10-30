@@ -153,7 +153,8 @@ try {
       return `${minutes}:${seconds}`;
     };
 
-    let isLiveStream = false;
+    let isPlaybackLive = false;
+    let streamAvailable = false;
 
     const togglePlayer = () => {
       if (!player) return;
@@ -166,12 +167,33 @@ try {
       }
     };
 
+    const updateLiveBadge = (state) => {
+      if (!remainingLabel) return;
+      if (state === "live") {
+        const promptPlay = streamAvailable && !isPlaybackLive && player?.paused;
+        remainingLabel.textContent = promptPlay
+          ? `${LIVE_INDICATOR_TEXT} · Presiona Play`
+          : LIVE_INDICATOR_TEXT;
+        remainingLabel.classList.add("live-active");
+        remainingLabel.classList.remove("live-offline");
+      } else if (state === "offline") {
+        remainingLabel.textContent = OFFLINE_INDICATOR_TEXT;
+        remainingLabel.classList.remove("live-active");
+        remainingLabel.classList.add("live-offline");
+      }
+    };
+
     const setLiveState = (isLive) => {
+      streamAvailable = isLive;
       if (!toggleButton) return;
       toggleButton.dataset.live = isLive ? "on" : "off";
       toggleButton.classList.toggle("is-live", isLive);
       toggleButton.classList.toggle("is-offline", !isLive);
       panelContainer?.classList.toggle("is-live", isLive);
+      if (!isPlaybackLive) {
+        updateLiveBadge(isLive ? "live" : "offline");
+      }
+      updateToggleLabel();
     };
 
     const updateDurationState = () => {
@@ -182,7 +204,7 @@ try {
       const live = !durationIsUnknown && !Number.isFinite(duration);
       const offline = durationIsUnknown || duration <= 0;
 
-      isLiveStream = live;
+      isPlaybackLive = live && !player?.paused;
 
       if (progressInput) {
         const disableProgress = live || offline || !durationIsFinite;
@@ -194,16 +216,13 @@ try {
       }
 
       if (remainingLabel) {
-        if (live) {
-          remainingLabel.textContent = LIVE_INDICATOR_TEXT;
+        if (live || streamAvailable) {
+          updateLiveBadge("live");
         } else if (offline) {
-          remainingLabel.textContent = OFFLINE_INDICATOR_TEXT;
+          updateLiveBadge("offline");
         } else {
           remainingLabel.textContent = formatTime(duration);
-        }
-        remainingLabel.classList.toggle("live-active", live);
-        remainingLabel.classList.toggle("live-offline", !live && offline);
-        if (!live && !offline) {
+          remainingLabel.classList.remove("live-active");
           remainingLabel.classList.remove("live-offline");
         }
       }
@@ -217,12 +236,8 @@ try {
         elapsedLabel.textContent = formatTime(current);
       }
 
-      if (isLiveStream) {
-        if (remainingLabel) {
-          remainingLabel.textContent = LIVE_INDICATOR_TEXT;
-          remainingLabel.classList.add("live-active");
-          remainingLabel.classList.remove("live-offline");
-        }
+      if (isPlaybackLive) {
+        updateLiveBadge("live");
         if (progressFill) {
           const fraction = (player.currentTime % 8) / 8;
           progressFill.style.transform = `scaleX(${0.2 + fraction * 0.8})`;
@@ -238,11 +253,7 @@ try {
         if (progressInput && !fromSlider) {
           progressInput.value = "0";
         }
-        if (remainingLabel) {
-          remainingLabel.textContent = OFFLINE_INDICATOR_TEXT;
-          remainingLabel.classList.remove("live-active");
-          remainingLabel.classList.add("live-offline");
-        }
+        updateLiveBadge(streamAvailable ? "live" : "offline");
         return;
       }
 
@@ -264,13 +275,18 @@ try {
     const updateToggleLabel = () => {
       if (!toggleButton || !player) return;
       const isPaused = player.paused;
-      const actionLabel = isPaused ? "Reproducir" : "Detener";
+      const actionLabel = isPaused
+        ? `Reproducir${streamAvailable ? " transmisión en vivo" : ""}`
+        : "Detener transmisión";
       toggleButton.setAttribute("aria-label", actionLabel);
       toggleButton.classList.toggle("is-playing", !isPaused);
       if (labelSpan) {
-        labelSpan.textContent = isPaused ? "Play" : "Stop";
+        if (isPaused) {
+          labelSpan.textContent = streamAvailable ? "Play En Vivo" : "Play";
+        } else {
+          labelSpan.textContent = "Stop";
+        }
       }
-      setLiveState(!player.paused);
       updateProgressUI();
     };
 
@@ -305,18 +321,14 @@ try {
 
     player?.addEventListener("error", () => {
       setLiveState(false);
-      isLiveStream = false;
+      isPlaybackLive = false;
       if (progressFill) {
         progressFill.style.transform = "scaleX(0)";
       }
       if (progressInput) {
         progressInput.value = "0";
       }
-      if (remainingLabel) {
-        remainingLabel.textContent = OFFLINE_INDICATOR_TEXT;
-        remainingLabel.classList.remove("live-active");
-        remainingLabel.classList.add("live-offline");
-      }
+      updateLiveBadge("offline");
     });
 
     let currentTitle = titleEl?.textContent ?? "";
@@ -331,6 +343,28 @@ try {
         const source = Array.isArray(payload?.icestats?.source)
           ? payload.icestats.source[0]
           : payload?.icestats?.source;
+
+        const sourceIsActive = Boolean(
+          source && (
+            source.listeners !== undefined ||
+            source.listener_peak !== undefined ||
+            source.title ||
+            source.server_name ||
+            source.stream_start ||
+            source.listenurl
+          )
+        );
+
+        if (sourceIsActive) {
+          if (!streamAvailable) {
+            setLiveState(true);
+          } else if (!isPlaybackLive) {
+            updateLiveBadge("live");
+            updateToggleLabel();
+          }
+        } else if (streamAvailable && !isPlaybackLive) {
+          setLiveState(false);
+        }
 
         if (source && (source.title || source.artist)) {
           if (titleEl && source.title && source.title !== currentTitle) {
@@ -354,7 +388,6 @@ try {
 
     refreshNowPlaying();
     setInterval(refreshNowPlaying, 15000);
-    updateToggleLabel();
     setLiveState(false);
 
     player?.addEventListener("loadedmetadata", () => {
@@ -365,11 +398,11 @@ try {
     player?.addEventListener("timeupdate", () => updateProgressUI());
 
     progressInput?.addEventListener("input", () => {
-      if (isLiveStream) return;
+      if (isPlaybackLive) return;
       updateProgressUI(true);
     });
     progressInput?.addEventListener("change", () => {
-      if (!player || isLiveStream) return;
+      if (!player || isPlaybackLive) return;
       const value = Number(progressInput.value);
       if (Number.isFinite(value)) {
         player.currentTime = value;

@@ -55,7 +55,7 @@ const sortedPosts = posts
                 )}
               </div>
               <h2>{post.frontmatter.title}</h2>
-              {post.frontmatter.description && (
+              {!post.frontmatter.external && 'description' in post.frontmatter && (
                 <p>{post.frontmatter.description}</p>
               )}
               <span class="blog-card-cta">
