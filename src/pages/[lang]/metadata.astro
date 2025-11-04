@@ -1,11 +1,18 @@
 ---
-import PageLayout from "../layouts/PageLayout.astro";
-import { SITE_TITLE } from "../config";
-import PageMeta from "../components/PageMeta.astro";
-import { readAll } from "../lib/markdoc/read";
-import { metadata } from "../lib/markdoc/metadata.schema";
-import "../styles/metadata.css";
+import PageLayout from "../../layouts/PageLayout.astro";
+import { SITE_TITLE } from "../../config";
+import PageMeta from "../../components/PageMeta.astro";
+import { t, normalizeLang } from "../../i18n";
+import { readAll } from "../../lib/markdoc/read";
+import { metadata } from "../../lib/markdoc/metadata.schema";
+import "../../styles/metadata.css";
 
+export async function getStaticPaths() {
+  return ["es", "en", "fr"].map((lang) => ({ params: { lang } }));
+}
+
+const lang = normalizeLang(Astro.params.lang as string);
+const locale = lang === 'en' ? 'en-US' : lang === 'fr' ? 'fr-FR' : 'es-ES';
 // Obtener todos los metadatos
 const allMetadata = await readAll({
   directory: "metadata",
@@ -23,7 +30,7 @@ const sortedMetadata = allMetadata
 
 // Formatear fecha en español
 function formatDate(date: string | Date): string {
-  return new Date(date).toLocaleDateString("es-ES", {
+  return new Date(date).toLocaleDateString(locale, {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -31,20 +38,18 @@ function formatDate(date: string | Date): string {
 }
 ---
 
-<PageLayout title="Metadatos Electrónicos" containerClass="max-w-6xl">
+<PageLayout title={t(lang,'metadata.title')} containerClass="max-w-6xl">
   <PageMeta 
-    title={`${SITE_TITLE} | Metadatos Electrónicos`} 
-    description="Explora nuestra colección de metadatos de música electrónica y más."
+    title={`${SITE_TITLE} | ${t(lang,'metadata.title')}`} 
+    description={t(lang,'metadata.intro')}
     slot="meta" 
   />
   
   <main slot="main">
     <section class="metadata-view">
       <header class="metadata-header">
-        <h1>Metadatos Electrónicos</h1>
-        <p class="metadata-intro">
-          Espacio dedicado al cotorreo de historioias y metadatos de la música electrónica.
-        </p>
+        <h1>{t(lang,'metadata.title')}</h1>
+        <p class="metadata-intro">{t(lang,'metadata.intro')}</p>
       </header>
 
       <div class="metadata-grid">
@@ -66,7 +71,7 @@ function formatDate(date: string | Date): string {
                   />
                   <div class="image-overlay"></div>
                   {hasAudio && (
-                    <div class="audio-indicator" title="Incluye audio">
+                    <div class="audio-indicator" title={t(lang,'metadata.audio_indicator')}>
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                         <path d="M11 5 6 9H3v6h3l5 4V5zm8.07-.07a10 10 0 0 1 0 14.14l-1.41-1.41a8 8 0 0 0 0-11.32l1.41-1.41zm-3.53 3.53a5 5 0 0 1 0 7.08l-1.42-1.42a3 3 0 0 0 0-4.24l1.42-1.42z"/>
                       </svg>
@@ -81,13 +86,11 @@ function formatDate(date: string | Date): string {
                   <div class="metadata-footer">
                     <div class="metadata-tags">
                       {hasTracks && (
-                        <span class="metadata-tag">{tracks.length} {tracks.length === 1 ? 'pista' : 'pistas'}</span>
+                        <span class="metadata-tag">{tracks.length} {tracks.length === 1 ? t(lang,'metadata.tracks_one') : t(lang,'metadata.tracks_other')}</span>
                       )}
-                      {hasAudio && <span class="metadata-tag">Audio</span>}
+                      {hasAudio && <span class="metadata-tag">{t(lang,'metadata.audio')}</span>}
                     </div>
-                    <span class="metadata-audio">
-                      Ver detalles
-                    </span>
+                    <span class="metadata-audio">{t(lang,'metadata.details')}</span>
                   </div>
                 </div>
               </a>

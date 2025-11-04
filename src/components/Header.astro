@@ -30,6 +30,13 @@ import DarkModeToggle from "./DarkModeToggle.astro";
       </div>
       <div class="flex items-center gap-6">
         <Nav />
+        <div class="relative">
+          <select id="lang-switch" class="rounded-full border border-border-ink bg-bg-card px-3 py-2 text-xs uppercase tracking-[0.3em] text-text-heading">
+            <option value="es">ES</option>
+            <option value="en">EN</option>
+            <option value="fr">FR</option>
+          </select>
+        </div>
         <DarkModeToggle />
       </div>
     </div>
@@ -118,3 +125,19 @@ import DarkModeToggle from "./DarkModeToggle.astro";
     object-fit: cover;
   }
 </style>
+
+<script is:inline>
+  // Set select based on current path
+  (function(){
+    const sel = document.getElementById('lang-switch');
+    if (!sel) return;
+    const m = location.pathname.match(/^\/(es|en|fr)(\/|$)/);
+    if (m) sel.value = m[1]; else sel.value = 'es';
+    sel.addEventListener('change', () => {
+      const lang = sel.value;
+      const path = location.pathname.replace(/^\/(es|en|fr)(\/|$)/, '/');
+      const newPath = lang === 'es' ? path : `/${lang}${path}`;
+      location.href = newPath;
+    });
+  })();
+  </script>

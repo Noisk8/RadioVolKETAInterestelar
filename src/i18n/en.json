@@ -1,0 +1,27 @@
+{
+  "nav": { "home": "Home", "metadata": "Metadata", "sets": "Sets" },
+  "menu": "Menu",
+  "back": "Back",
+  "live": "LIVE",
+  "offline": "Offline",
+  "sets": {
+    "archive": "Sets archive",
+    "title": "Sets and sessions",
+    "subtitle": "Listen and explore our sessions published on SoundCloud.",
+    "listen_sc": "Listen on SoundCloud",
+    "open_sc": "Open in SoundCloud"
+  },
+  "metadata": {
+    "title": "Electronic Metadata",
+    "intro": "A space dedicated to stories and metadata of electronic music.",
+    "audio_indicator": "Includes audio",
+    "tracks_one": "track",
+    "tracks_other": "tracks",
+    "audio": "Audio",
+    "details": "View details",
+    "exclusive": "Exclusive session",
+    "full_listen": "Full listen",
+    "unsupported": "Your browser does not support the audio element.",
+    "tracklist": "Tracklist"
+  }
+}

@@ -1,27 +1,20 @@
 ---
-import PageLayout from "../../layouts/PageLayout.astro";
-import PageMeta from "../../components/PageMeta.astro";
-import { readAll } from "../../lib/markdoc/read";
-import { setSchema } from "../../lib/markdoc/sets.schema";
-import "../../styles/sets-detail.css";
+import PageLayout from "../../../layouts/PageLayout.astro";
+import PageMeta from "../../../components/PageMeta.astro";
+import { readAll } from "../../../lib/markdoc/read";
+import { setSchema } from "../../../lib/markdoc/sets.schema";
+import "../../../styles/sets-detail.css";
+import { t, normalizeLang } from "../../../i18n";
 
 export async function getStaticPaths() {
   const sets = await readAll({ directory: "sets", frontmatterSchema: setSchema });
-  const { getSoundCloudArtwork } = await import("../../lib/soundcloud");
-  const withCovers = await Promise.all(
-    sets.map(async (s) => {
-      const fm = s.frontmatter;
-      let imageUrl = fm.imageUrl;
-      if (!imageUrl) {
-        imageUrl = (await getSoundCloudArtwork(fm.soundcloudUrl)) ?? `/images/sets/${s.slug}.jpeg`;
-      }
-      return { params: { slug: s.slug }, props: { entry: s, imageUrl } };
-    })
-  );
-  return withCovers;
+  const langs = ["es", "en", "fr"];
+  return langs.flatMap((lang) => sets.map((s) => ({ params: { lang, slug: s.slug }, props: { entry: s } })));
 }
 
-const { entry, imageUrl: coverFromProps } = Astro.props as any;
+const { entry } = Astro.props as any;
+const lang = normalizeLang(Astro.params.lang as string);
+const locale = lang === 'en' ? 'en-US' : lang === 'fr' ? 'fr-FR' : 'es-ES';
 const { slug } = entry;
 const fm = entry.frontmatter;
 
@@ -29,28 +22,28 @@ const title: string = fm.title ?? "Set";
 const description: string = fm.description ?? "";
 const soundcloudUrl: string = fm.soundcloudUrl;
 const date = new Date(fm.date);
-const formattedDate = date.toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" });
+const formattedDate = date.toLocaleDateString(locale, { year: "numeric", month: "long", day: "numeric" });
 
 const embedUrl = `https://w.soundcloud.com/player/?url=${encodeURIComponent(soundcloudUrl)}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true`;
 ---
 
 <PageLayout containerClass="max-w-5xl">
-  <PageMeta title={`${title} | Set`} description={description} slot="meta" />
+  <PageMeta title={`${title} | ${t(lang,'nav.sets')}`} description={description} slot="meta" />
   <main slot="main" class="set-view">
-    <a href="/sets" class="back-chip">
+    <a href={`/${lang}/sets`} class="back-chip">
       <span class="fa-solid fa-arrow-left-long" aria-hidden="true"></span>
-      Volver
+      {t(lang,'back')}
     </a>
 
     <article class="set-sheet">
       <header class="sheet-header">
-        <span class="sheet-title">Set</span>
+        <span class="sheet-title">{t(lang,'nav.sets')}</span>
         <h1>{title}</h1>
         <time datetime={date.toISOString()}>{formattedDate}</time>
       </header>
 
       <section class="sheet-player">
-        <p class="section-kicker">Escucha en SoundCloud</p>
+        <p class="section-kicker">{t(lang,'sets.listen_sc')}</p>
         <div class="sc-embed">
           <iframe
             width="100%"
@@ -63,7 +56,7 @@ const embedUrl = `https://w.soundcloud.com/player/?url=${encodeURIComponent(soun
           />
         </div>
         <p class="sc-link">
-          <a href={soundcloudUrl} target="_blank" rel="noreferrer">Abrir en SoundCloud</a>
+          <a href={soundcloudUrl} target="_blank" rel="noreferrer">{t(lang,'sets.open_sc')}</a>
         </p>
       </section>
 

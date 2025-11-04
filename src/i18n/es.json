@@ -1,0 +1,27 @@
+{
+  "nav": { "home": "Inicio", "metadata": "Metadata", "sets": "Sets" },
+  "menu": "Menú",
+  "back": "Volver",
+  "live": "EN VIVO",
+  "offline": "Fuera de aire",
+  "sets": {
+    "archive": "Archivo de sets",
+    "title": "Sets y sesiones",
+    "subtitle": "Escucha y explora nuestras sesiones publicadas en SoundCloud.",
+    "listen_sc": "Escucha en SoundCloud",
+    "open_sc": "Abrir en SoundCloud"
+  },
+  "metadata": {
+    "title": "Metadatos Electrónicos",
+    "intro": "Espacio dedicado al cotorreo de historioias y metadatos de la música electrónica.",
+    "audio_indicator": "Incluye audio",
+    "tracks_one": "pista",
+    "tracks_other": "pistas",
+    "audio": "Audio",
+    "details": "Ver detalles",
+    "exclusive": "Sesión exclusiva",
+    "full_listen": "Escucha completa",
+    "unsupported": "Tu navegador no soporta el elemento de audio.",
+    "tracklist": "Tracklist"
+  }
+}

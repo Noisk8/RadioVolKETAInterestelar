@@ -1,17 +1,20 @@
 ---
-import PageLayout from "../layouts/PageLayout.astro";
-import PageMeta from "../components/PageMeta.astro";
-import { SITE_TITLE } from "../config";
-import { readAll } from "../lib/markdoc/read";
-import { setSchema } from "../lib/markdoc/sets.schema";
-import { getSoundCloudArtwork } from "../lib/soundcloud";
-import "../styles/sets.css";
+import PageLayout from "../../layouts/PageLayout.astro";
+import PageMeta from "../../components/PageMeta.astro";
+import { SITE_TITLE } from "../../config";
+import { t, normalizeLang } from "../../i18n";
+import { readAll } from "../../lib/markdoc/read";
+import { setSchema } from "../../lib/markdoc/sets.schema";
+import { getSoundCloudArtwork } from "../../lib/soundcloud";
+import "../../styles/sets.css";
 
-const sets = await readAll({
-  directory: "sets",
-  frontmatterSchema: setSchema,
-});
+export async function getStaticPaths() {
+  return ["es", "en", "fr"].map((lang) => ({ params: { lang } }));
+}
 
+const lang = normalizeLang(Astro.params.lang as string);
+const locale = lang === 'en' ? 'en-US' : lang === 'fr' ? 'fr-FR' : 'es-ES';
+const sets = await readAll({ directory: "sets", frontmatterSchema: setSchema });
 const setsWithCovers = await Promise.all(
   sets.map(async (entry) => {
     let cover = entry.frontmatter.imageUrl;
@@ -24,28 +27,20 @@ const setsWithCovers = await Promise.all(
 
 const sortedSets = setsWithCovers
   .filter((s) => s.frontmatter.draft !== true)
-  .sort(
-    (a, b) =>
-      new Date(b.frontmatter.date).valueOf() -
-      new Date(a.frontmatter.date).valueOf()
-  );
+  .sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf());
 
 function formatDate(date: string | Date): string {
-  return new Date(date).toLocaleDateString("es-ES", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  return new Date(date).toLocaleDateString(locale, { year: "numeric", month: "long", day: "numeric" });
 }
 ---
 
 <PageLayout containerClass="max-w-6xl">
-  <PageMeta title={`Sets | ${SITE_TITLE}`} slot="meta" />
+  <PageMeta title={`${t(lang,'nav.sets')} | ${SITE_TITLE}`} slot="meta" />
   <section slot="main" class="sets-view">
     <header class="sets-header">
-      <span class="sets-chip">Archivo de sets</span>
-      <h1>Sets y sesiones</h1>
-      <p>Escucha y explora nuestras sesiones publicadas en SoundCloud.</p>
+      <span class="sets-chip">{t(lang,'sets.archive')}</span>
+      <h1>{t(lang,'sets.title')}</h1>
+      <p>{t(lang,'sets.subtitle')}</p>
     </header>
 
     <ul class="sets-grid">
@@ -68,5 +63,4 @@ function formatDate(date: string | Date): string {
       })}
     </ul>
   </section>
-  
 </PageLayout>

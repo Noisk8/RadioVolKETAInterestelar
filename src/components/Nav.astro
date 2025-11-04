@@ -1,12 +1,18 @@
 ---
 import HeaderLink from "./HeaderLink.astro";
+import { t } from "../i18n";
 
+function currentLangPrefix() {
+  const m = (Astro.url?.pathname || '').match(/^\/(es|en|fr)(\/|$)/);
+  return m ? `/${m[1]}` : '';
+}
+
+const base = currentLangPrefix();
+const lang = (base.replace('/', '') || 'es') as 'es'|'en'|'fr';
 const links = [
-  { href: "/", label: "Inicio" },
-  { href: "/metadata", label: "Metadata" },
-  { href: "/sets", label: "Sets" },
-  // { href: "/blog", label: "Blog" },
-  // { href: "/projects", label: "Programas" },
+  { href: `${base || "/"}`, label: t(lang, 'nav.home') },
+  { href: `${base}/metadata`, label: t(lang, 'nav.metadata') },
+  { href: `${base}/sets`, label: t(lang, 'nav.sets') },
 ];
 ---
 
@@ -29,7 +35,7 @@ const links = [
 
   <details class="group relative md:hidden">
     <summary class="flex cursor-pointer items-center gap-2 rounded-full border border-border-ink/60 bg-bg-card px-4 py-2 text-xs uppercase tracking-[0.3em] text-text-heading">
-      Menú
+      {t(lang,'menu')}
       <span class="text-[0.6rem]">▾</span>
     </summary>
     <ul class="absolute left-1/2 -translate-x-1/2 right-auto mt-3 w-64 max-w-[90vw] space-y-1 rounded-2xl border border-border-ink bg-bg-card p-3 text-center shadow-[6px_6px_0_rgba(27,24,20,0.12)] z-50">

@@ -1,0 +1,90 @@
+---
+const SITE_TITLE = "Radio VolKETA Interestelar";
+import PageLayout from "../../../layouts/PageLayout.astro";
+import PageMeta from "../../../components/PageMeta.astro";
+import { t, normalizeLang } from "../../../i18n";
+
+interface Track { title: string; artist?: string; duration?: string; }
+
+export async function getStaticPaths() {
+  const { readAll } = await import("../../../lib/markdoc/read");
+  const { metadata: metadataSchema } = await import("../../../lib/markdoc/metadata.schema");
+  const allMetadata = await readAll({ directory: "metadata", frontmatterSchema: metadataSchema });
+  const langs = ["es", "en", "fr"];
+  return langs.flatMap((lang) =>
+    allMetadata.map((item) => ({ params: { lang, slug: item.slug }, props: { metadata: item } }))
+  );
+}
+
+const { metadata } = Astro.props as any;
+const lang = normalizeLang(Astro.params.lang as string);
+const locale = lang === 'en' ? 'en-US' : lang === 'fr' ? 'fr-FR' : 'es-ES';
+if (!metadata) throw new Error("No se recibieron metadatos para esta página");
+
+const title = metadata?.frontmatter?.title || 'Sin título';
+const description = metadata?.frontmatter?.description || 'Sin descripción';
+const audioUrl = metadata?.frontmatter?.audioUrl || '';
+const tracks: Track[] = metadata?.frontmatter?.tracks || [];
+const date = metadata?.frontmatter?.date ? new Date(metadata.frontmatter.date) : new Date();
+
+const formattedDate = date.toLocaleDateString(locale, { year: "numeric", month: "long", day: "numeric" });
+
+let imageUrl = `/images/metadata/${metadata?.slug || 'default'}.jpeg`;
+if (metadata?.frontmatter?.imageUrl) {
+  imageUrl = metadata.frontmatter.imageUrl.startsWith('http') ? metadata.frontmatter.imageUrl : `/${metadata.frontmatter.imageUrl.replace(/\.?\//, '')}`;
+}
+---
+
+<PageLayout containerClass="max-w-5xl">
+  <PageMeta title={`${title} | ${SITE_TITLE}`} description={description} slot="meta" />
+  <main slot="main" class="episode-view">
+    <a href={`/${lang}/metadata`} class="back-chip">
+      <span class="fa-solid fa-arrow-left-long" aria-hidden="true"></span>
+      {t(lang,'back')}
+    </a>
+
+    <article class="episode-sheet">
+      <header class="sheet-header">
+        <span class="sheet-title">{t(lang,'metadata.exclusive')}</span>
+        <h1>{title}</h1>
+        <time datetime={new Date(date).toISOString()}>{formattedDate}</time>
+      </header>
+
+      <div class="sheet-image">
+        <div class="card-corners" aria-hidden="true">
+          <span class="corner corner--tl"></span>
+          <span class="corner corner--tr"></span>
+          <span class="corner corner--bl"></span>
+          <span class="corner corner--br"></span>
+        </div>
+        <img src={imageUrl} alt={title} loading="lazy" />
+      </div>
+
+      <p class="sheet-description">{description}</p>
+
+      {audioUrl && (
+        <section class="sheet-player">
+          <p class="section-kicker">{t(lang,'metadata.full_listen')}</p>
+          <audio controls preload="metadata">
+            <source src={audioUrl} type="audio/mpeg" />
+            {t(lang,'metadata.unsupported')}
+          </audio>
+        </section>
+      )}
+
+      {tracks && tracks.length > 0 && (
+        <section class="sheet-tracklist">
+          <p class="section-kicker">{t(lang,'metadata.tracklist')}</p>
+          <div class="track-grid">
+            {tracks.map((track: Track, index: number) => (
+              <div class="track-row">
+                <span class="track-number">{String(index + 1).padStart(2, '0')}</span>
+                <span class="track-title">{track.title}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+    </article>
+  </main>
+</PageLayout>

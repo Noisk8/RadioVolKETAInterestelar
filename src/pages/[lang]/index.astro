@@ -1,0 +1,21 @@
+---
+import PageLayout from "../../layouts/PageLayout.astro";
+import PageMeta from "../../components/PageMeta.astro";
+import Intro from "../../components/Intro.astro";
+import { SITE_TITLE } from "../../config";
+import { normalizeLang, t } from "../../i18n";
+
+export async function getStaticPaths() {
+  return ["es", "en", "fr"].map((lang) => ({ params: { lang } }));
+}
+
+const lang = normalizeLang(Astro.params.lang as string);
+---
+
+<PageLayout containerClass="max-w-7xl">
+  <PageMeta title={`${SITE_TITLE} | ${t(lang,'nav.home')}`} slot="meta" />
+  <Fragment slot="main">
+    <Intro />
+  </Fragment>
+</PageLayout>
+
