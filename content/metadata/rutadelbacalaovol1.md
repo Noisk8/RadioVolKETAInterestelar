@@ -1,9 +1,9 @@
 ---
-title: "ItaloDisco Vol 1"
-description: "EKbalah Records presenta: Metada Electrónica En esta tercera entrega Noisk8 nos hacer un primer acercamiento al Italo disco. "
-date: 2025-10-28
-audioUrl: "https://ia601003.us.archive.org/29/items/italo1/ItaloDisco-vol_1.mp3"
-imageUrl: "/images/metadata/italovol1.jpeg"
+title: "Ruta del Bacalao"
+description: "Kbalah Records presenta: Metada Electrónica En esta tercera entrega Undisclosed 122 nos hacer un primer acercamiento a la Ruta del bacalao"
+date: 2025-11-04
+audioUrl: "https://ia601005.us.archive.org/18/items/kblah-metadata-electronica-ruta-del-bacalao/Kblah_Metadata%20Electronica%20Ruta%20del%20bacalao.mp3"
+imageUrl: "https://ia601005.us.archive.org/18/items/kblah-metadata-electronica-ruta-del-bacalao/Ruta%20del%20bacalao.jpeg"
 tracks:
   - title: "Marina(Remix '89) - Rocco Granata & The Carnations"
   - title: "Self Control - RAF"

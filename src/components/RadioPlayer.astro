@@ -1,25 +1,25 @@
 ---
-const STREAM_URL = "https://stream.p-node.org/contretemps.mp3";
-const STATUS_URL = "http://srv788502.hstgr.cloud:8001/status-json.xsl";
+// Use same-origin proxy para reproducir sin CORS
+const STREAM_URL = "/api/stream";
+// API interna para el cliente; para SSR usa endpoint absoluto
+const STATUS_URL = "/api/getCurrentSong";
+const DIRECT_STATUS_URL = "https://stream.noisk8.xyz/status-json.xsl";
 
-interface StreamInfo {
-  title?: string;
-  artist?: string;
-}
+interface StreamInfo { title?: string; artist?: string; }
 
 let current: StreamInfo = {
   title: "",
-  artist: "Transmitiendo en vivo",
+  artist: "",
 };
 
 try {
-  const response = await fetch(STATUS_URL);
+  // En SSR, evita rutas relativas y consulta directamente el JSON de Icecast
+  const response = await fetch(DIRECT_STATUS_URL, { cache: 'no-store' });
   if (response.ok) {
     const data = await response.json();
     const source = Array.isArray(data?.icestats?.source)
-      ? data?.icestats?.source?.[0]
+      ? data.icestats.source[0]
       : data?.icestats?.source;
-
     if (source) {
       current = {
         title: source.title || current.title,
@@ -48,21 +48,19 @@ try {
         <span class="eq-bar" style="animation-delay: 360ms"></span>
         <span class="eq-bar" style="animation-delay: 480ms"></span>
       </div>
-      <div class="radio-titles">
-  
-        <h2 id="song-title">{current.title}</h2>
-        <p id="artist-name">{current.artist}</p>
-      </div>
+      <!-- Títulos movidos debajo del reproductor -->
     </header>
 
 
       <audio
         id="radio-player"
         class="w-full bg-transparent px-6 pb-6 pt-12"
-        src={STREAM_URL}
         preload="none"
         crossorigin="anonymous"
-      ></audio>
+      >
+        <source src={STREAM_URL} type="audio/mpeg" />
+        <source src="https://stream.noisk8.xyz/kbalahradio.ogg" type="audio/mpeg" />
+      </audio>
     
 
     <div class="player-foot">
@@ -83,6 +81,18 @@ try {
           />
         </div>
         <span id="player-remaining" class="time-chip live-indicator">Fuera de aire</span>
+      </div>
+
+      <!-- Now playing, pequeño, una sola línea, entre timeline y botones -->
+      <div class="nowplaying" aria-live="polite">
+        <div class="title-line">
+          <span class="np-dot" aria-hidden="true"></span>
+          <span class="np-text">
+            <span id="song-title">{current.title}</span>
+      
+            <span id="artist-name">{current.artist}</span>
+          </span>
+        </div>
       </div>
 
       <div class="action-row">
@@ -114,7 +124,6 @@ try {
             />
           </div>
         </div>
-
       </div>
     </div>
   </div>
@@ -122,7 +131,10 @@ try {
 
 <client:load>
   <script type="module">
-    const STATUS_URL = "http://srv788502.hstgr.cloud:8001/status-json.xsl";
+    // Client-side URLs
+    const STATUS_URL = "/api/getCurrentSong";
+    const FALLBACK_STATUS_URL = "https://stream.noisk8.xyz/status-json.xsl";
+    const STREAM_URL = "/api/stream";
     const player = document.getElementById("radio-player");
     const titleEl = document.getElementById("song-title");
     const artistEl = document.getElementById("artist-name");
@@ -334,26 +346,41 @@ try {
     let currentTitle = titleEl?.textContent ?? "";
     let currentArtist = artistEl?.textContent ?? "";
 
+    const pickSource = (payload) => {
+      if (payload?.icestats?.source) {
+        return Array.isArray(payload.icestats.source)
+          ? payload.icestats.source[0]
+          : payload.icestats.source;
+      }
+      return undefined;
+    };
+
+    async function fetchStatus() {
+      try {
+        const r = await fetch(STATUS_URL, { cache: "no-store" });
+        if (r.ok) {
+          const j = await r.json();
+          if (j && (j.title || j.artist || j.online !== undefined)) return j;
+        }
+      } catch {}
+      // Fallback a Icecast directo
+      try {
+        const r2 = await fetch(FALLBACK_STATUS_URL, { cache: "no-store" });
+        if (r2.ok) {
+          const j2 = await r2.json();
+          const s = pickSource(j2);
+          if (s) {
+            return { title: s.title || "", artist: s.artist || "", online: true };
+          }
+        }
+      } catch {}
+      return { title: "", artist: "", online: false };
+    }
+
     async function refreshNowPlaying() {
       try {
-        const request = await fetch(STATUS_URL, { cache: "no-store" });
-        if (!request.ok) return;
-
-        const payload = await request.json();
-        const source = Array.isArray(payload?.icestats?.source)
-          ? payload.icestats.source[0]
-          : payload?.icestats?.source;
-
-        const sourceIsActive = Boolean(
-          source && (
-            source.listeners !== undefined ||
-            source.listener_peak !== undefined ||
-            source.title ||
-            source.server_name ||
-            source.stream_start ||
-            source.listenurl
-          )
-        );
+        const payload = await fetchStatus();
+        const sourceIsActive = Boolean(payload?.online);
 
         if (sourceIsActive) {
           if (!streamAvailable) {
@@ -366,19 +393,19 @@ try {
           setLiveState(false);
         }
 
-        if (source && (source.title || source.artist)) {
-          if (titleEl && source.title && source.title !== currentTitle) {
-            titleEl.textContent = source.title;
+        if (payload && (payload.title || payload.artist)) {
+          if (titleEl && payload.title && payload.title !== currentTitle) {
+            titleEl.textContent = payload.title;
             titleEl.classList.add("text-highlight");
             setTimeout(() => titleEl.classList.remove("text-highlight"), 600);
-            currentTitle = source.title;
+            currentTitle = payload.title;
           }
 
-          if (artistEl && source.artist && source.artist !== currentArtist) {
-            artistEl.textContent = source.artist;
+          if (artistEl && payload.artist && payload.artist !== currentArtist) {
+            artistEl.textContent = payload.artist;
             artistEl.classList.add("text-highlight");
             setTimeout(() => artistEl.classList.remove("text-highlight"), 600);
-            currentArtist = source.artist;
+            currentArtist = payload.artist;
           }
         }
       } catch (error) {
@@ -500,21 +527,55 @@ try {
     color: rgb(var(--color-text-muted));
   }
 
-  .radio-titles {
-    display: grid;
-    gap: 0.35rem;
-    justify-items: center;
+  /* Nuevo bloque compacto para el título/autor */
+  .nowplaying {
+    width: min(100%, 520px);
+    justify-self: center;
   }
-
-  .radio-titles h2 {
-    font-size: clamp(2rem, 3vw, 2.6rem);
-    font-weight: 600;
+  .nowplaying .title-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    max-width: 100%;
+    margin: 0.3rem auto 0;
+    padding: 0.5rem 0.85rem;
+    border: 1.5px solid rgb(var(--color-border-ink));
+    border-radius: 14px;
+    background: rgb(var(--color-bg-card));
+    box-shadow: 5px 5px 0 rgba(var(--shadow-soft) / 0.14);
     color: rgb(var(--color-text-heading));
-  }
-
-  .radio-titles p {
-    color: rgb(var(--color-text-muted));
     font-size: 0.95rem;
+    line-height: 1.25;
+  }
+  .nowplaying .np-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--player-accent);
+    box-shadow: 0 0 0 3px var(--player-accent-shadow);
+    flex: 0 0 10px;
+    align-self: center;
+  }
+  .nowplaying .np-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    word-break: break-word;
+    min-width: 0;
+    max-width: 100%;
+  }
+  #song-title,
+  #artist-name {
+    display: inline;
+    font-weight: 600;
+  }
+  .nowplaying .sep {
+    margin: 0 0.35rem;
+    color: rgb(var(--color-text-muted));
+    font-weight: 400;
   }
 
   .eq-badge {

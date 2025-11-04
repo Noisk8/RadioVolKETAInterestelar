@@ -1,4 +1,6 @@
-const STREAM_STATUS_URL = 'http://82.25.92.57:5000/status.json';
+export const prerender = false;
+// Unified to the new Icecast instance (HTTPS)
+const STREAM_STATUS_URL = 'https://stream.noisk8.xyz/status-json.xsl';
 
 function pickSource(payload) {
   if (!payload) return undefined;
@@ -33,8 +35,9 @@ export async function get() {
 
     const data = await response.json();
     const source = pickSource(data);
+    const online = Boolean(source);
 
-    if (source && (source.title || source.song || source.track)) {
+    if (online) {
       const title = source.title || source.song || source.track || "";
       const artist = source.artist || source.performer || source.author || "";
 
@@ -42,6 +45,7 @@ export async function get() {
         JSON.stringify({
           title,
           artist,
+          online: true,
         }),
         {
           headers: { 'Content-Type': 'application/json' },
@@ -53,9 +57,7 @@ export async function get() {
   }
 
   return new Response(
-    JSON.stringify({
-      title: "Transmitiendo en vivo - kblah Radio",
-    }),
+    JSON.stringify({ title: "", artist: "", online: false }),
     {
       headers: { 'Content-Type': 'application/json' },
     },
