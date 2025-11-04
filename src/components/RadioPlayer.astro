@@ -60,14 +60,7 @@ try {
         preload="none"
         crossorigin="anonymous"
       >
-        {import.meta.env.PROD ? (
-          <source src="https://stream.noisk8.xyz/kbalahradio.ogg" type="audio/mpeg" />
-        ) : (
-          <>
-            <source src={STREAM_URL} type="audio/mpeg" />
-            <source src="https://stream.noisk8.xyz/kbalahradio.ogg" type="audio/mpeg" />
-          </>
-        )}
+        <source src="https://stream.noisk8.xyz/kbalahradio.ogg" type="audio/mpeg" />
       </audio>
     
 
@@ -139,10 +132,9 @@ try {
 
 <client:load>
   <script type="module">
-    // Client-side URLs
-    const STATUS_URL = "/api/getCurrentSong";
-    const FALLBACK_STATUS_URL = "https://stream.noisk8.xyz/status-json.xsl";
-    const STREAM_URL = "/api/stream";
+    // Client-side: usar endpoints directos (sin import.meta.env)
+    const STATUS_URL = "https://stream.noisk8.xyz/status-json.xsl";
+    const STREAM_URL = "https://stream.noisk8.xyz/kbalahradio.ogg";
     const player = document.getElementById("radio-player");
     const titleEl = document.getElementById("song-title");
     const artistEl = document.getElementById("artist-name");
@@ -368,18 +360,8 @@ try {
         const r = await fetch(STATUS_URL, { cache: "no-store" });
         if (r.ok) {
           const j = await r.json();
-          if (j && (j.title || j.artist || j.online !== undefined)) return j;
-        }
-      } catch {}
-      // Fallback a Icecast directo
-      try {
-        const r2 = await fetch(FALLBACK_STATUS_URL, { cache: "no-store" });
-        if (r2.ok) {
-          const j2 = await r2.json();
-          const s = pickSource(j2);
-          if (s) {
-            return { title: s.title || "", artist: s.artist || "", online: true };
-          }
+          const s = pickSource(j) || j;
+          if (s) return { title: s.title || "", artist: s.artist || "", online: true };
         }
       } catch {}
       return { title: "", artist: "", online: false };
