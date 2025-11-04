@@ -14,8 +14,10 @@ let current: StreamInfo = {
 
 try {
   // En SSR, evita rutas relativas y consulta directamente el JSON de Icecast
-  const response = await fetch(DIRECT_STATUS_URL, { cache: 'no-store' });
+  const response = await fetch(DIRECT_STATUS_URL, { cache: 'no-store', headers: { accept: 'application/json' } });
   if (response.ok) {
+    const ct = response.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) throw new Error('Non-JSON response');
     const data = await response.json();
     const source = Array.isArray(data?.icestats?.source)
       ? data.icestats.source[0]
@@ -58,8 +60,14 @@ try {
         preload="none"
         crossorigin="anonymous"
       >
-        <source src={STREAM_URL} type="audio/mpeg" />
-        <source src="https://stream.noisk8.xyz/kbalahradio.ogg" type="audio/mpeg" />
+        {import.meta.env.PROD ? (
+          <source src="https://stream.noisk8.xyz/kbalahradio.ogg" type="audio/mpeg" />
+        ) : (
+          <>
+            <source src={STREAM_URL} type="audio/mpeg" />
+            <source src="https://stream.noisk8.xyz/kbalahradio.ogg" type="audio/mpeg" />
+          </>
+        )}
       </audio>
     
 

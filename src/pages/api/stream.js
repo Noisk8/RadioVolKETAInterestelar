@@ -2,6 +2,13 @@ export const prerender = false;
 const STREAM_URL = 'https://stream.noisk8.xyz/kbalahradio.ogg';
 
 export async function get() {
+  // Prevent static build from hanging: return fast during SSR build
+  if (import.meta.env.PROD && import.meta.env.SSR) {
+    return new Response('stream endpoint disabled during static build', {
+      status: 200,
+      headers: { 'content-type': 'text/plain; charset=utf-8' },
+    });
+  }
   try {
     const upstream = await fetch(STREAM_URL, {
       // Do not cache; keep connection streaming

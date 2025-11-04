@@ -27,12 +27,19 @@ function pickSource(payload) {
 
 export async function get() {
   try {
-    const response = await fetch(STREAM_STATUS_URL, { cache: 'no-store' });
+    const response = await fetch(STREAM_STATUS_URL, {
+      cache: 'no-store',
+      headers: { accept: 'application/json' },
+    });
 
     if (!response.ok) {
       throw new Error(`Status ${response.status}`);
     }
 
+    const ct = response.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) {
+      throw new Error(`Unexpected content-type: ${ct}`);
+    }
     const data = await response.json();
     const source = pickSource(data);
     const online = Boolean(source);
