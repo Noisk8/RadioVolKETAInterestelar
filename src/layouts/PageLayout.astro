@@ -15,6 +15,7 @@ import ThemeScript from "./ThemeScript.astro";
 import Favicon from "./Favicon.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import MiniRadioBar from "../components/MiniRadioBar.astro";
 import Analytics from '@vercel/analytics/astro'
 
 // Props para título y descripción
@@ -34,6 +35,7 @@ const {
 
 // URL canónica para las metaetiquetas
 const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://radiovolketainterestelar.com');
+const showMiniPlayer = Astro.url.pathname !== "/";
 ---
 
 <!DOCTYPE html>
@@ -66,12 +68,12 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://radiovol
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
   </head>
 
-  <body class={`min-h-screen transition-colors duration-300 ${bodyClass}`}>
+  <body class={`min-h-screen transition-colors duration-300 ${bodyClass} ${showMiniPlayer ? 'has-mini-player' : ''}`}>
     <div class="pattern-background"></div>
     <div class="relative min-h-screen">
       <div class="absolute inset-x-0 top-0 h-px bg-border-ink/40"></div>
       <div class="absolute inset-x-0 bottom-0 h-px bg-border-ink/40"></div>
-      <div
+      <div id="swup"
         class={`relative mx-auto flex min-h-screen w-full flex-col gap-20 px-6 py-12 sm:px-12 lg:px-16 ${containerClass}`}
       >
         <Header />
@@ -81,5 +83,127 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://radiovol
         <Footer />
       </div>
     </div>
+    {/* Always render; visibility toggled client-side for SPA nav */}
+    <MiniRadioBar />
+    <script is:inline>
+      (async () => {
+        try {
+          if (!window.__swup) {
+            const mod = await import('https://unpkg.com/swup@4?module');
+            const headMod = await import('https://unpkg.com/@swup/head-plugin@2?module');
+            const Swup = mod.default || mod;
+            const HeadPlugin = headMod.default || headMod;
+            const swup = new Swup({
+              containers: ['#swup'],
+              linkSelector: 'a[href^="/"]:not([target]):not([data-no-swup]):not([href^="/api/"])',
+              plugins: [new HeadPlugin()],
+            });
+            window.__swup = swup;
+            swup.on('willReplaceContent', () => document.body.classList.add('is-loading'));
+            swup.on('contentReplaced', () => {
+              document.body.classList.remove('is-loading');
+              setupMediaGuards(document);
+              resumeIfWanted();
+              updateMiniPlayerVisibility();
+            });
+          }
+          // Initial bind
+          setupMediaGuards(document);
+          updateMiniPlayerVisibility();
+        } catch (e) {
+          console.debug('Swup not initialized', e);
+        }
+      })();
+
+      function setupMediaGuards(root) {
+        try {
+          const mini = document.getElementById('mini-audio');
+          if (!mini) return;
+
+          // Pause mini when any other <audio> starts
+          const allAudios = root.querySelectorAll('audio');
+          allAudios.forEach((el) => {
+            if (el.id === 'mini-audio') return;
+            el.addEventListener('play', () => {
+              if (!mini.paused) {
+                window.__miniResumeWanted = true;
+                mini.pause();
+              }
+            }, { passive: true });
+            el.addEventListener('pause', () => resumeIfWanted(), { passive: true });
+            el.addEventListener('ended', () => resumeIfWanted(), { passive: true });
+          });
+
+          // Also capture play events at document level as a safety net
+          if (!window.__audioGuardAttached) {
+            document.addEventListener('play', (e) => {
+              const t = e.target;
+              if (t && t.tagName === 'AUDIO' && t.id !== 'mini-audio') {
+                if (!mini.paused) {
+                  window.__miniResumeWanted = true;
+                  mini.pause();
+                }
+              }
+            }, true);
+            window.__audioGuardAttached = true;
+          }
+
+          // Handle SoundCloud widgets
+          const scIframes = root.querySelectorAll('iframe[src*="w.soundcloud.com/player"]');
+          if (scIframes.length > 0) {
+            loadSoundCloudAPI().then(() => {
+              // @ts-ignore
+              const SC = window.SC;
+              scIframes.forEach((frame) => {
+                try {
+                  const widget = SC.Widget(frame);
+                  widget.bind(SC.Widget.Events.PLAY, () => {
+                    if (!mini.paused) {
+                      window.__miniResumeWanted = true;
+                      mini.pause();
+                    }
+                  });
+                  widget.bind(SC.Widget.Events.PAUSE, () => resumeIfWanted());
+                  widget.bind(SC.Widget.Events.FINISH, () => resumeIfWanted());
+                } catch {}
+              });
+            }).catch(() => {});
+          }
+        } catch {}
+      }
+
+      function resumeIfWanted() {
+        const mini = document.getElementById('mini-audio');
+        if (!mini) return;
+        if (window.__miniResumeWanted) {
+          mini.play().catch(() => {});
+          window.__miniResumeWanted = false;
+        }
+      }
+
+      function loadSoundCloudAPI() {
+        if (window.__scApiPromise) return window.__scApiPromise;
+        window.__scApiPromise = new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = 'https://w.soundcloud.com/player/api.js';
+          s.onload = () => resolve();
+          s.onerror = reject;
+          document.head.appendChild(s);
+        });
+        return window.__scApiPromise;
+      }
+
+      function updateMiniPlayerVisibility() {
+        const onHome = location.pathname === '/';
+        const bar = document.querySelector('.mini-radio');
+        if (bar) bar.classList.toggle('is-hidden', onHome);
+        document.body.classList.toggle('has-mini-player', !onHome);
+      }
+    </script>
   </body>
 </html>
+
+<style is:global>
+  body.has-mini-player { padding-bottom: 68px; }
+  .mini-radio.is-hidden { display: none !important; }
+</style>

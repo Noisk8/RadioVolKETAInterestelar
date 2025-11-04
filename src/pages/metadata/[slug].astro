@@ -29,8 +29,8 @@ interface MetadataProps {
 }
 
 export async function getStaticPaths() {
-  const { readAll } = await import("../../lib/markdoc/read.ts");
-  const { metadata: metadataSchema } = await import("../../lib/markdoc/metadata.schema.ts");
+  const { readAll } = await import("../../lib/markdoc/read");
+  const { metadata: metadataSchema } = await import("../../lib/markdoc/metadata.schema");
   const allMetadata = await readAll({
     directory: "metadata",
     frontmatterSchema: metadataSchema,
@@ -84,8 +84,8 @@ if (metadata?.frontmatter?.imageUrl) {
 
     <article class="episode-sheet">
       <header class="sheet-header">
-        <span class="sheet-title">Sesión exclusiva</span>
-        <h1>{title}</h1>
+        <span class="sheet-title"><h1>{title}</h1></span>
+        
         <time datetime={new Date(date).toISOString()}>{formattedDate}</time>
       </header>
 

@@ -1,0 +1,90 @@
+---
+import PageLayout from "../layouts/PageLayout.astro";
+import PageMeta from "../components/PageMeta.astro";
+import { SITE_TITLE } from "../config";
+import { readAll } from "../lib/markdoc/read";
+import { setSchema } from "../lib/markdoc/sets.schema";
+import { getSoundCloudArtwork } from "../lib/soundcloud";
+
+const sets = await readAll({
+  directory: "sets",
+  frontmatterSchema: setSchema,
+});
+
+const setsWithCovers = await Promise.all(
+  sets.map(async (entry) => {
+    let cover = entry.frontmatter.imageUrl;
+    if (!cover) {
+      cover = (await getSoundCloudArtwork(entry.frontmatter.soundcloudUrl)) ?? `/images/sets/${entry.slug}.jpeg`;
+    }
+    return { ...entry, cover };
+  })
+);
+
+const sortedSets = setsWithCovers
+  .filter((s) => s.frontmatter.draft !== true)
+  .sort(
+    (a, b) =>
+      new Date(b.frontmatter.date).valueOf() -
+      new Date(a.frontmatter.date).valueOf()
+  );
+
+function formatDate(date: string | Date): string {
+  return new Date(date).toLocaleDateString("es-ES", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+---
+
+<PageLayout containerClass="max-w-6xl">
+  <PageMeta title={`Sets | ${SITE_TITLE}`} slot="meta" />
+  <section slot="main" class="sets-view">
+    <header class="sets-header">
+      <span class="sets-chip">Archivo de sets</span>
+      <h1>Sets y sesiones</h1>
+      <p>Escucha y explora nuestras sesiones publicadas en SoundCloud.</p>
+    </header>
+
+    <ul class="sets-grid">
+      {sortedSets.map((entry) => {
+        const { title } = entry.frontmatter;
+        const cover = entry.cover;
+        return (
+          <li class="set-card">
+            <a class="set-link" href={`/sets/${entry.slug}`}>
+              <div class="set-image">
+                <img src={cover} alt={title} loading="lazy" />
+              </div>
+              <div class="set-content">
+                <span class="set-date">{formatDate(entry.frontmatter.date)}</span>
+                <h2 class="set-title">{title}</h2>
+              </div>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </section>
+  
+</PageLayout>
+
+<style>
+  .sets-view { display: grid; gap: 2.5rem; }
+  .sets-header { display: grid; gap: 0.8rem; text-align: center; }
+  .sets-chip { display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 1.2rem; border-radius: 999px; border: 1.5px solid rgb(var(--color-border-ink)); background: rgb(var(--color-bg-card)); letter-spacing: 0.35em; text-transform: uppercase; font-size: 0.75rem; box-shadow: 5px 5px 0 rgba(var(--shadow-soft) / 0.14); }
+  .sets-header h1 { font-size: clamp(2.1rem, 4vw, 3rem); font-weight: 600; color: rgb(var(--color-text-heading)); }
+  .sets-header p { max-width: 60ch; margin: 0 auto; color: rgb(var(--color-text-muted)); }
+
+  .sets-grid { display: grid; gap: 1.8rem; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
+  .set-card { border: 1.5px solid rgb(var(--color-border-ink)); background: rgb(var(--color-bg-card)); box-shadow: 8px 8px 0 rgba(var(--shadow-soft) / 0.14); transition: transform .2s ease; }
+  .set-card:hover { transform: translateY(-3px); }
+  .set-link { display: grid; gap: .9rem; }
+  .set-image { position: relative; aspect-ratio: 1 / 1; overflow: hidden; background: rgb(var(--color-bg-elevated)); }
+  .set-image img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+  .set-card:hover .set-image img { transform: scale(1.05); }
+  .set-content { display: grid; gap: .5rem; padding: 1.2rem 1.2rem 1.6rem; }
+  .set-date { font-size: .75rem; letter-spacing: .28em; text-transform: uppercase; color: rgb(var(--color-text-muted)); }
+  .set-title { font-size: 1.25rem; font-weight: 600; color: rgb(var(--color-text-heading)); }
+</style>

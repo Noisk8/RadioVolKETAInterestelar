@@ -3,7 +3,8 @@ import HeaderLink from "./HeaderLink.astro";
 
 const links = [
   { href: "/", label: "Inicio" },
-   { href: "/metadata", label: "Metadata" },
+  { href: "/metadata", label: "Metadata" },
+  { href: "/sets", label: "Sets" },
   // { href: "/blog", label: "Blog" },
   // { href: "/projects", label: "Programas" },
 ];
@@ -31,7 +32,7 @@ const links = [
       Menú
       <span class="text-[0.6rem]">▾</span>
     </summary>
-    <ul class="absolute right-0 mt-3 w-48 space-y-1 rounded-2xl border border-border-ink bg-bg-card p-3 shadow-[6px_6px_0_rgba(27,24,20,0.12)]">
+    <ul class="absolute left-1/2 -translate-x-1/2 right-auto mt-3 w-64 max-w-[90vw] space-y-1 rounded-2xl border border-border-ink bg-bg-card p-3 text-center shadow-[6px_6px_0_rgba(27,24,20,0.12)] z-50">
       {links.map((link) => (
         <li>
           <HeaderLink href={link.href} class="block rounded-lg px-3 py-2 text-sm text-text-heading hover:bg-bg-elevated">
