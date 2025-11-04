@@ -11,16 +11,33 @@
       const isSystemColorSchemeDark = window.matchMedia(
         "(prefers-color-scheme: dark)"
       ).matches;
-      const storageTheme = sessionStorage.getItem("theme");
+      // Prefer localStorage (persist across sessions). Migrate from sessionStorage if present.
+      try {
+        const legacy = sessionStorage.getItem("theme");
+        if (legacy && !localStorage.getItem("theme")) {
+          localStorage.setItem("theme", legacy);
+          sessionStorage.removeItem("theme");
+        }
+      } catch {}
+
+      const storageTheme = (() => {
+        try { return localStorage.getItem("theme"); } catch { return null; }
+      })();
       if (!storageTheme && isSystemColorSchemeDark) {
         document.documentElement.classList.add("dark");
-        document.head.children.namedItem("theme-color").content = "#0f172a";
+        if (document.head.children.namedItem("theme-color")) {
+          document.head.children.namedItem("theme-color").content = "#0f172a";
+        }
       } else if (storageTheme === "dark") {
         document.documentElement.classList.add("dark");
-        document.head.children.namedItem("theme-color").content = "#0f172a";
+        if (document.head.children.namedItem("theme-color")) {
+          document.head.children.namedItem("theme-color").content = "#0f172a";
+        }
       } else {
         // we already server render light theme
-        document.head.children.namedItem("theme-color").content = "#ffffff";
+        if (document.head.children.namedItem("theme-color")) {
+          document.head.children.namedItem("theme-color").content = "#ffffff";
+        }
       }
     }
   })();

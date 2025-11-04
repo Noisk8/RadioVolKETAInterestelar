@@ -41,41 +41,98 @@
     }
   }
   function updateStorageTheme(mode: "light" | "dark") {
-    if (mode === "dark") {
-      sessionStorage.setItem("theme", "dark");
-    } else {
-      sessionStorage.setItem("theme", "light");
-    }
+    try {
+      localStorage.setItem("theme", mode);
+    } catch {}
   }
   class ModeToggle extends HTMLElement {
     constructor() {
       super();
       let currentMode: "light" | "dark" =
         document.documentElement.classList.contains("dark") ? "dark" : "light";
+      // userPref: 'light' | 'dark' | 'auto' (auto = no localStorage key)
+      let userPref: "light" | "dark" | "auto" = (localStorage.getItem("theme") as any) || "auto";
 
       const toggle = this.querySelector("button");
       const iconElem = toggle?.querySelector("#mode-circle");
+      const setAria = () => {
+        if (!toggle) return;
+        const label = userPref === "auto" ? "Tema: Automático" : `Tema: ${currentMode === "dark" ? "Oscuro" : "Claro"}`;
+        toggle.setAttribute("aria-label", label);
+      };
 
       if (iconElem) {
         iconElem.classList.add(currentMode === "dark" ? "is-dark" : "is-light");
 
-        toggle?.addEventListener("click", () => {
-          if (currentMode === "dark") {
-            const modeToSwitch = "light";
-            iconElem.classList.remove("is-dark");
-            iconElem.classList.add("is-light");
-            updateHTMLTheme(modeToSwitch);
-            updateStorageTheme(modeToSwitch);
-            currentMode = modeToSwitch;
-          } else {
-            const modeToSwitch = "dark";
-            iconElem.classList.remove("is-light");
-            iconElem.classList.add("is-dark");
-            updateHTMLTheme(modeToSwitch);
-            updateStorageTheme(modeToSwitch);
-            currentMode = modeToSwitch;
+        // Click: alterna entre claro / oscuro (preferencia explícita)
+        let longPressTriggered = false;
+        let pressTimer: number | undefined;
+        const onClick = () => {
+          if (longPressTriggered) { longPressTriggered = false; return; }
+          const modeToSwitch = currentMode === "dark" ? "light" : "dark";
+          iconElem.classList.toggle("is-dark", modeToSwitch === "dark");
+          iconElem.classList.toggle("is-light", modeToSwitch === "light");
+          updateHTMLTheme(modeToSwitch);
+          updateStorageTheme(modeToSwitch);
+          currentMode = modeToSwitch;
+          userPref = modeToSwitch;
+          setAria();
+        };
+
+        const toAuto = () => {
+          try { localStorage.removeItem("theme"); } catch {}
+          userPref = "auto";
+          applySystem();
+          setAria();
+        };
+
+        const onPressStart = () => {
+          longPressTriggered = false;
+          // 600ms long press → Auto
+          pressTimer = window.setTimeout(() => { longPressTriggered = true; toAuto(); }, 600);
+        };
+        const onPressEnd = () => { if (pressTimer) window.clearTimeout(pressTimer); };
+
+        toggle?.addEventListener("click", onClick);
+        toggle?.addEventListener("mousedown", onPressStart);
+        toggle?.addEventListener("touchstart", onPressStart, { passive: true });
+        window.addEventListener("mouseup", onPressEnd);
+        window.addEventListener("touchend", onPressEnd, { passive: true });
+
+        // If user hasn't explicitly chosen a theme (no localStorage key),
+        // follow the system preference and update toggle on change.
+        try {
+          // migrate legacy sessionStorage to localStorage
+          const legacy = sessionStorage.getItem("theme");
+          if (legacy && !localStorage.getItem("theme")) {
+            localStorage.setItem("theme", legacy);
+            sessionStorage.removeItem("theme");
           }
-        });
+          const stored = localStorage.getItem("theme");
+          const mql = window.matchMedia("(prefers-color-scheme: dark)");
+          const applySystem = () => {
+            // Only auto-apply when there's no explicit user choice
+            if (localStorage.getItem("theme")) return;
+            const modeToSwitch = mql.matches ? "dark" : "light";
+            currentMode = modeToSwitch;
+            iconElem.classList.toggle("is-dark", modeToSwitch === "dark");
+            iconElem.classList.toggle("is-light", modeToSwitch === "light");
+            updateHTMLTheme(modeToSwitch);
+            userPref = "auto";
+            setAria();
+          };
+          if (!stored) {
+            // Sync immediately and then on changes
+            applySystem();
+            if (mql.addEventListener) mql.addEventListener("change", applySystem);
+            else if (mql.addListener) mql.addListener(applySystem);
+          }
+          // expose for long-press handler
+          // @ts-ignore
+          window.applySystem = applySystem;
+        } catch {}
+
+        setAria();
       }
     }
   }
