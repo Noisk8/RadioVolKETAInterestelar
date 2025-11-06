@@ -7,7 +7,7 @@ imageUrl: "https://ia601005.us.archive.org/18/items/kblah-metadata-electronica-r
 tracks:
   - title: "THE IMPOSSIBLES - Struggle for pleasure"
   - title: "K.R.B. - Mysterious songs"
-  - title: "RDUNNE - Espiral"
+  - title: "DUNNE - Espiral"
   - title: "COMPUTER 69: Magnetic Forces"
   - title: "SCENCE - The Future Of Music "
   - title: "STEAM SYSTEM - Barraca Destroy"
