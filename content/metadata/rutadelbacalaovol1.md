@@ -5,16 +5,17 @@ date: 2025-11-04
 audioUrl: "https://ia601005.us.archive.org/18/items/kblah-metadata-electronica-ruta-del-bacalao/Kblah_Metadata%20Electronica%20Ruta%20del%20bacalao.mp3"
 imageUrl: "https://ia601005.us.archive.org/18/items/kblah-metadata-electronica-ruta-del-bacalao/Ruta%20del%20bacalao.jpeg"
 tracks:
-  - title: "Marina(Remix '89) - Rocco Granata & The Carnations"
-  - title: "Self Control - RAF"
-  - title: "Radio Style - Gameplay "
-  - title: "First Hand Experience in Second Hand Love - Giorgo Moroder"
-  - title: "Hypnotic Tango - My Mine"
-  - title: "Keep Dancing - Clio y kay "
-  - title: "Ochi du se me - Roobert Sandrini"
-  - title: "You thin a man - Divine "
-  - title: "The last dream - The seweeps"
-  - title: "Don't Talk About It (Swedish Remix 1986) - Swan "
+  - title: "THE IMPOSSIBLES - Struggle for pleasure"
+  - title: "K.R.B. - Mysterious songs"
+  - title: "RDUNNE - Espiral"
+  - title: "COMPUTER 69: Magnetic Forces"
+  - title: "SCENCE - The Future Of Music "
+  - title: "STEAM SYSTEM - Barraca Destroy"
+  - title: "JAM & SPOON (rmx) - Age of love "
+  - title: "TOSS - Lethal Minuet "
+  - title: "TOSS - Sale peryckon rayach"
+  - title: "MEGABEAT - War"
+  - title: "CHIMO BAYO  - Asi Me Gusta A Mi"
 
 
 ---
