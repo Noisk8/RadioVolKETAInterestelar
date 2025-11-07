@@ -1,6 +1,6 @@
 ---
 title: "Ruta del Bacalao Vol 1"
-description: "Kbalah Records presenta: Metada Electrónica En esta tercera entrega Undisclosed 122 nos hacer un primer acercamiento a la Ruta del bacalao"
+description: "Kbalah Records presenta: Metada Electrónica En esta tercera entrega Undisclosed 1122 nos hacer un primer acercamiento a la Ruta del bacalao"
 date: 2025-11-04
 audioUrl: "https://ia601005.us.archive.org/18/items/kblah-metadata-electronica-ruta-del-bacalao/Kblah_Metadata%20Electronica%20Ruta%20del%20bacalao.mp3"
 imageUrl: "https://ia601005.us.archive.org/18/items/kblah-metadata-electronica-ruta-del-bacalao/Ruta%20del%20bacalao.jpeg"
