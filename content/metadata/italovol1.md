@@ -1,6 +1,6 @@
 ---
 title: "ItaloDisco Vol 1"
-description: "EKbalah Records presenta: Metada Electrónica En esta tercera entrega Noisk8 nos hacer un primer acercamiento al Italo disco. "
+description: "Kbalah Records presenta: Metadata Electrónica. En esta primera entrega, Noisk8 propone un nuevo y más íntimo acercamiento al Italo disco. "
 date: 2025-10-28
 audioUrl: "https://ia601003.us.archive.org/29/items/italo1/ItaloDisco-vol_1.mp3"
 imageUrl: "/images/metadata/italovol1.jpeg"
